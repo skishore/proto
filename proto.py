@@ -19,11 +19,11 @@ start = (cols/2, rows/2)
 
 speed = 2
 tolerance = 0.2*sq
-pushaway = 0.4*sq
+pushaway = 0.6*sq
 
 white = (255, 255, 255)
 black = (0, 0, 0)
-blue = (0, 64, 255)
+blue = (0, 128, 255)
 
 
 class TestGame(object):
@@ -64,10 +64,10 @@ class TestGame(object):
     keys = self.key_repeater.query()
     if pygame.K_ESCAPE in keys:
       sys.exit()
-    self.sprite.velocity = (
+    self.sprite.velocity = [
       speed*((pygame.K_RIGHT in keys) - (pygame.K_LEFT in keys)),
       speed*((pygame.K_DOWN in keys) - (pygame.K_UP in keys)),
-    )
+    ]
 
   def is_square_blocked(self, square):
     if (
