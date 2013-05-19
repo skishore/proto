@@ -7,20 +7,24 @@ import time
 from key_repeater import KeyRepeater
 from sprite import Sprite
 
+
 framerate = 60
 delay = 1.0/framerate
 
 sq = 16
-cols = 48
-rows = 32
+cols = 16
+rows = 16
 screen_size = (sq*cols, sq*rows)
+start = (cols/2, rows/2)
 
 speed = 2
-start = (cols/2, rows/2)
+tolerance = 0.2*sq
+pushaway = 0.4*sq
 
 white = (255, 255, 255)
 black = (0, 0, 0)
 blue = (0, 64, 255)
+
 
 class TestGame(object):
   def __init__(self):
@@ -46,7 +50,7 @@ class TestGame(object):
   @staticmethod
   def generate_tilemap():
     tilemap = [[
-      1 if random.randrange(5) == 0 else 0
+      random.randrange(5) == 0
       for j in range(rows)
     ] for i in range(cols)]
     tilemap[start[0]][start[1]] = 0
@@ -64,9 +68,18 @@ class TestGame(object):
       speed*((pygame.K_RIGHT in keys) - (pygame.K_LEFT in keys)),
       speed*((pygame.K_DOWN in keys) - (pygame.K_UP in keys)),
     )
-    self.sprite.normalize(speed)
+
+  def is_square_blocked(self, square):
+    if (
+      square[0] < 0 or square[0] >= len(self.tilemap) or
+      square[1] < 0 or square[1] >= len(self.tilemap[0])
+    ):
+      return True
+    return self.tilemap[square[0]][square[1]]
   
   def move_sprite(self, sprite):
+    sprite.normalize(speed)
+    sprite.handle_blocks(self.is_square_blocked, tolerance, pushaway)
     sprite.move()
 
   def draw(self):

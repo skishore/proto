@@ -1,5 +1,6 @@
 import pygame
 
+
 class KeyRepeater(object):
   def __init__(self, one_time_keys, repeated_keys):
     self.keys = set(one_time_keys + repeated_keys)
