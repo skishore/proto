@@ -21,14 +21,13 @@ class Sprite(object):
     )
 
   def handle_blocks(self, is_square_blocked, tolerance, pushaway):
-    if not any(self.velocity):
+    magnitude = self.magnitude()
+    if not magnitude:
       return
 
     collided = False
     offset = [0, 0]
     square = self.cur_square()
-
-    magnitude = self.magnitude()
 
     # Check if we cross a vertical square boundary and adjust the y-velocity.
     if abs(self.velocity[1]) < ZERO:
@@ -92,7 +91,7 @@ class Sprite(object):
     return math.sqrt(self.velocity[0]**2 + self.velocity[1]**2)
 
   def move(self):
-    if any(self.velocity):
+    if self.magnitude():
       self.pos = (self.pos[0] + self.velocity[0], self.pos[1] + self.velocity[1])
       self.rect = Rect(self.pos[0] + 0.5 - ZERO, self.pos[1] + 0.5 - ZERO, self.sq, self.sq)
 
