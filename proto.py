@@ -40,6 +40,8 @@ class TestGame(object):
         pygame.K_DOWN,
         pygame.K_LEFT,
       ),
+      pause=framerate/4,
+      repeat=framerate/8,
     )
 
   @staticmethod
