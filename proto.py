@@ -2,6 +2,7 @@ import pygame
 import sys
 import time
 
+from font import Font, font_map, font
 from key_repeater import KeyRepeater
 from pokedex import get_front_index
 from sprite import Sprite
@@ -19,6 +20,7 @@ teal = (0, 128, 255)
 class TestGame(object):
   def __init__(self):
     self.screen = pygame.display.set_mode(screen_size)
+    self.font = Font()
     self.key_repeater = self.construct_key_repeater()
 
     self.backs = self.get_sprite('pokemon_back_tiled.bmp')
@@ -88,10 +90,19 @@ class TestGame(object):
     elif pygame.K_LEFT in keys or pygame.K_UP in keys:
       self.set_pokenum(self.pokenum - 1)
 
+  def draw_text(self, text, x, y, color):
+    text_surface = self.font.render(text, 1, color)
+    self.screen.blit(text_surface, (x, y))
+
   def draw(self):
     self.screen.fill(teal)
     self.fronts.draw(self.screen)
     self.backs.draw(self.screen)
+    i = 0
+    for c in font:
+      if c in font_map:
+        self.font.draw(self.screen, c, 200 + 10 * (i % 16), 40 + 10*(i / 16))
+        i += 1
     pygame.display.flip()
 
   def game_loop(self):
