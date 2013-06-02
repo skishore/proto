@@ -1,7 +1,6 @@
 import pygame
 from pygame.rect import Rect
 
-
 colorkey = (255, 192, 255)
 
 

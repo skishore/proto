@@ -1,6 +1,5 @@
 from data import johto_to_kanto_map
 
-
 assert(set(johto_to_kanto_map.iterkeys()) == set(xrange(1, 252)))
 assert(set(johto_to_kanto_map.itervalues()) == set(xrange(1, 252)))
 kanto_to_johto_map = dict(
