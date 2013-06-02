@@ -2,7 +2,7 @@ import pygame
 import sys
 import time
 
-from font import Font, font_map, font
+from font import Font
 from key_repeater import KeyRepeater
 from pokedex import get_front_index
 from sprite import Sprite
@@ -14,7 +14,7 @@ screen_size = (480, 320)
 
 white = (255, 255, 255)
 black = (0, 0, 0)
-teal = (0, 128, 255)
+teal = (128, 192, 255)
 
 
 class TestGame(object):
@@ -98,11 +98,7 @@ class TestGame(object):
     self.screen.fill(teal)
     self.fronts.draw(self.screen)
     self.backs.draw(self.screen)
-    i = 0
-    for c in font:
-      if c in font_map:
-        self.font.draw(self.screen, c, 200 + 10 * (i % 16), 40 + 10*(i / 16))
-        i += 1
+    self.font.draw(self.screen, 'Testing: the @# font 2000 v1.1. (huzzah!)', 40, 40)
     pygame.display.flip()
 
   def game_loop(self):

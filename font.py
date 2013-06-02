@@ -2,7 +2,7 @@ import string
 
 from sprite import Sprite
 
-font = "%s():;[]%s%s'~~-?!.&~~>~~~/,~%s~~~~ " % (
+font = "%s():;[]%s%s'@#-?!.&~~>~~~/,~%s~~~~ " % (
   string.uppercase,
   string.lowercase,
   22*'~',
