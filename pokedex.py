@@ -1,3 +1,5 @@
+from random import randint
+
 from data import pokedex_data
 
 assert(set(pokedex_data.iterkeys()) == set(xrange(1, 252)))
@@ -14,5 +16,15 @@ def get_front_index(pokenum):
   return result - 1
 
 
-def get_name(pokenum):
-  return pokedex_data[pokenum]['name']
+class Pokemon(object):
+  def __init__(self, num, level=1):
+    self.num = num
+    self.level = level
+    self.name = pokedex_data[num]['name']
+    self.health = 1.0
+
+
+def random_pokemon():
+  pokemon = Pokemon(randint(1, 251), randint(1, 10))
+  pokemon.health = 1.0*randint(1, 100)/100
+  return pokemon

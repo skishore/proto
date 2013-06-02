@@ -1,7 +1,10 @@
+import math
+import pygame
+
 from font import Font
 from pokedex import (
   get_front_index,
-  get_name,
+  random_pokemon,
 )
 from sprite import Sprite
 
@@ -15,12 +18,22 @@ max_num_enemy_pokemon = 8
 
 font_size = 8
 max_name_length = 10
+
 name_size = font_size*max_name_length
+status_height = 2*font_size + 6
+health_border = (1, 6)
+health_bar = (
+  name_size - 7*font_size/2 - 2*health_border[0],
+  health_border[1] - 2
+)
 
 ui_height = 100
 
-white = (255, 255, 255)
 black = (0, 0, 0)
+white = (255, 255, 255)
+red = (255, 0, 0)
+yellow = (224, 224, 0)
+green = (0, 255, 0)
 
 
 class BattleUI(object):
@@ -28,13 +41,8 @@ class BattleUI(object):
     self.font = Font()
     self.user_sprite = self.get_sprite('pokemon_back_tiled.bmp')
     self.enemy_sprite = self.get_sprite('pokemon.bmp')
-
-    # Dummy values to test the UI.
-    import random
-    self.user_pokemon = range(147, 150)
-    self.enemy_pokemon = [
-      41 + random.randrange(2) for i in range(7)
-    ]
+    self.user_pokemon = [random_pokemon() for i in xrange(3)]
+    self.enemy_pokemon = [random_pokemon() for i in xrange(7)]
 
   @staticmethod
   def get_sprite(filename):
@@ -70,7 +78,7 @@ class BattleUI(object):
     self.draw_enemy_pokemon(surface)
 
   def draw_user_pokemon(self, surface):
-    top = screen_size[1] - ui_height - self.user_sprite.height - 3*font_size/2
+    top = screen_size[1] - ui_height - self.user_sprite.height - status_height
     self.draw_pokemon_row(surface, self.user_pokemon, self.user_sprite, top)
 
   def draw_enemy_pokemon(self, surface):
@@ -80,18 +88,66 @@ class BattleUI(object):
       top_row = (num + 1)/2
     for row in xrange(2):
       pokemon = self.enemy_pokemon[row*top_row:(row + 1)*top_row]
-      top = (row + 1)*row_space + row*(self.enemy_sprite.height + 3*font_size/2)
+      top = (row + 1)*row_space + row*(self.enemy_sprite.height + status_height)
       shift = bool(row and (num % 2))
       self.draw_pokemon_row(surface, pokemon, self.enemy_sprite, top, shift)
 
-  def draw_pokemon_row(self, surface, pokemon, sprite, top, shift=False):
-    num = len(pokemon)
+  def draw_pokemon_row(self, surface, pokemon_list, sprite, top, shift=False):
+    num = len(pokemon_list)
     total = screen_size[0] + name_size
-    for (i, pokenum) in enumerate(pokemon):
-      far_left = int((i + 1 + 0.5*shift)*total/(num + 1 + shift)) - name_size
-      left = far_left + (name_size - font_size*len(get_name(pokenum)))/2
-      self.font.draw(surface, get_name(pokenum), left, top + sprite.height + font_size/2)
-      left = far_left + (name_size - sprite.width)/2
-      sprite.set_position(left, top)
-      sprite.set_pokenum(pokenum)
-      sprite.draw(surface)
+    for (i, pokemon) in enumerate(pokemon_list):
+      left = int((i + 1 + 0.5*shift)*total/(num + 1 + shift)) - name_size
+      self.draw_pokemon(surface, sprite, pokemon, left, top)
+
+
+  def draw_pokemon(self, surface, sprite, pokemon, far_left, top):
+    # Draw the Pokemon's (back or front) sprite.
+    left = far_left + (name_size - sprite.width)/2
+    sprite.set_position(left, top)
+    sprite.set_pokenum(pokemon.num)
+    sprite.draw(surface)
+    # Draw the Pokemon's name.
+    name = pokemon.name
+    left = far_left + (name_size - font_size*len(name))/2
+    top += sprite.height + font_size/2
+    self.font.draw(surface, name, left, top)
+    # Draw the Pokemon's level.
+    offset = (pokemon.level < 10)*font_size/2
+    top += 3*font_size/2
+    self.font.draw(surface, 'L%d' % (pokemon.level,), far_left + offset, top)
+    # Draw the Pokemon's health bar.
+    left = far_left + 7*font_size/2 - offset
+    top += font_size/2
+    self.draw_health_bar(surface, pokemon.health, left, top)
+
+  def draw_health_bar(self, surface, health, left, top):
+    # Draw the left and right borders of the health bar.
+    pygame.draw.rect(surface, black, (
+      left,
+      top - health_border[1]/2,
+      health_border[0],
+      health_border[1],
+    ))
+    pygame.draw.rect(surface, black, (
+      left + health_border[0] + health_bar[0],
+      top - health_border[1]/2,
+      health_border[0],
+      health_border[1],
+    ))
+    # Draw a line underneath the bar. This code may be incorrect...
+    pygame.draw.line(surface, black, (
+      left + health_border[0],
+      top + health_border[1]/2 - health_bar[1]/2 + 1,
+    ), (
+      left + health_border[0] + health_bar[0],
+      top + health_border[1]/2 - health_bar[1]/2 + 1,
+    ))
+    # Draw the actual health bar in the correct color.
+    color = green if health > 0.5 else yellow if health > 0.25 else red
+    width = int(math.ceil(health*health_bar[0]))
+    pygame.draw.rect(surface, color, (
+      left + health_border[0],
+      top - health_bar[1]/2,
+      width,
+      health_bar[1],
+    ))
