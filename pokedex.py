@@ -1,15 +1,18 @@
-from data import johto_to_kanto_map
+from data import pokedex_data
 
-assert(set(johto_to_kanto_map.iterkeys()) == set(xrange(1, 252)))
-assert(set(johto_to_kanto_map.itervalues()) == set(xrange(1, 252)))
-kanto_to_johto_map = dict(
-  (kanto, johto) for (johto, kanto) in johto_to_kanto_map.iteritems()
-)
+assert(set(pokedex_data.iterkeys()) == set(xrange(1, 252)))
+assert(
+  set(row['johto'] for row in pokedex_data.itervalues()
+) == set(xrange(1, 252)))
 
 
 def get_front_index(pokenum):
-  result = kanto_to_johto_map[pokenum]
+  result = pokedex_data[pokenum]['johto']
   # Account for the fact that we have an extra Jynx sprite.
   if result > 153:
     result += 1
   return result - 1
+
+
+def get_name(pokenum):
+  return pokedex_data[pokenum]['name']
