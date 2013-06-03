@@ -1,12 +1,18 @@
-from random import randint
+from random import (
+  randint,
+  sample,
+)
 
-from data import pokedex_data
+from data import (
+  move_data,
+  pokedex_data,
+)
 
 assert(set(pokedex_data.iterkeys()) == set(xrange(1, 252)))
 assert(
   set(row['johto'] for row in pokedex_data.itervalues()
 ) == set(xrange(1, 252)))
-
+moves = move_data.keys()
 
 def get_front_index(pokenum):
   result = pokedex_data[pokenum]['johto']
@@ -27,4 +33,6 @@ class Pokemon(object):
 def random_pokemon():
   pokemon = Pokemon(randint(1, 251), randint(1, 10))
   pokemon.health = 1.0*randint(1, 100)/100
+  num_moves = randint(3, 4)
+  pokemon.moves = [dict(move_data[m]) for m in sample(moves, num_moves)]
   return pokemon

@@ -290,7 +290,7 @@ for line in raw_move_data.split('\r\n')[1:-1]:
   row = line.split(',')
   assert(row[5] in types), 'Unexpected type: %s' % (row[5],)
   move_data[int(row[0])] = {
-    'name': row[1],
+    'name': row[1].upper(),
     'accuracy': row[2],
     'power': row[3],
     'pp': row[4],

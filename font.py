@@ -32,5 +32,6 @@ class Font(Sprite):
       if char in font_map:
         self.set_index(font_map[char])
         self.set_position(cur_x, y)
-        super(Font, self).draw(surface)
+        if char != ' ':
+          super(Font, self).draw(surface)
         cur_x += self.width

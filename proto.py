@@ -25,6 +25,8 @@ class TestGame(object):
     return KeyRepeater(
       one_time_keys=(
         pygame.K_ESCAPE,
+        pygame.K_s,
+        pygame.K_d,
       ),
       repeated_keys=(
         pygame.K_UP,
