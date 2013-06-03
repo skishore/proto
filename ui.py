@@ -2,10 +2,7 @@ import math
 import pygame
 
 from font import Font
-from pokedex import (
-  get_front_index,
-  random_pokemon,
-)
+from pokedex import get_front_index
 from sprite import Sprite
 
 screen_size = (420, 420)
@@ -41,8 +38,6 @@ class BattleUI(object):
     self.font = Font()
     self.user_sprite = self.get_sprite('pokemon_back_tiled.bmp')
     self.enemy_sprite = self.get_sprite('pokemon.bmp')
-    self.user_pokemon = [random_pokemon() for i in xrange(3)]
-    self.enemy_pokemon = [random_pokemon() for i in xrange(7)]
 
   @staticmethod
   def get_sprite(filename):
@@ -72,23 +67,23 @@ class BattleUI(object):
       assert(False), 'Unexpected image name: %s' % (filename,)
     return sprite
 
-  def draw(self, surface):
+  def draw(self, surface, battle):
     surface.fill(white)
-    self.draw_user_pokemon(surface)
-    self.draw_enemy_pokemon(surface)
-    self.draw_menu(surface)
+    self.draw_user_pokemon(surface, battle.user_pokemon)
+    self.draw_enemy_pokemon(surface, battle.enemy_pokemon)
+    self.draw_menu(surface, battle.get_menu())
 
-  def draw_user_pokemon(self, surface):
+  def draw_user_pokemon(self, surface, user_pokemon):
     top = screen_size[1] - ui_height - self.user_sprite.height - status_height
-    self.draw_pokemon_row(surface, self.user_pokemon, self.user_sprite, top)
+    self.draw_pokemon_row(surface, user_pokemon, self.user_sprite, top)
 
-  def draw_enemy_pokemon(self, surface):
-    num = len(self.enemy_pokemon)
+  def draw_enemy_pokemon(self, surface, enemy_pokemon):
+    num = len(enemy_pokemon)
     top_row = num
     if num > max_num_enemy_pokemon/2:
       top_row = (num + 1)/2
     for row in xrange(2):
-      pokemon = self.enemy_pokemon[row*top_row:(row + 1)*top_row]
+      pokemon = enemy_pokemon[row*top_row:(row + 1)*top_row]
       top = top_row_space + row*(self.enemy_sprite.height + status_height)
       shift = bool(row and (num % 2))
       self.draw_pokemon_row(surface, pokemon, self.enemy_sprite, top, shift)
@@ -153,14 +148,8 @@ class BattleUI(object):
       health_bar[1],
     ))
 
-  def draw_menu(self, surface):
-    self.draw_menu_block(surface, [
-      'What will %s do?' % (self.user_pokemon[0].name,),
-      ' AERIAL ACE',
-      '>REST',
-      ' DREAM EATER',
-      ' SHADOW BALL',
-    ], 0, screen_size[0])
+  def draw_menu(self, surface, menu):
+    self.draw_menu_block(surface, menu, 0, screen_size[0])
 
   def draw_menu_block(self, surface, lines, left, width):
     pygame.draw.rect(surface, black, (

@@ -2,6 +2,7 @@ import pygame
 import sys
 import time
 
+from battle import Battle
 from key_repeater import KeyRepeater
 from ui import (
   BattleUI,
@@ -16,6 +17,7 @@ class TestGame(object):
   def __init__(self):
     self.screen = pygame.display.set_mode(screen_size)
     self.key_repeater = self.construct_key_repeater()
+    self.battle = Battle()
     self.ui = BattleUI()
 
   @staticmethod
@@ -36,8 +38,8 @@ class TestGame(object):
 
   def game_loop(self):
     while True:
-      self.handle_events()
-      self.draw()
+      if self.handle_events():
+        self.draw()
       time.sleep(delay)
 
   def handle_events(self):
@@ -48,9 +50,10 @@ class TestGame(object):
     keys = self.key_repeater.query()
     if pygame.K_ESCAPE in keys:
       sys.exit()
+    return self.battle.transition(keys)
 
   def draw(self):
-    self.ui.draw(self.screen)
+    self.ui.draw(self.screen, self.battle)
     pygame.display.flip()
 
 if __name__ == '__main__':
