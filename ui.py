@@ -11,7 +11,7 @@ from sprite import Sprite
 screen_size = (420, 420)
 back_size = 50
 front_size = 56
-row_space = 14
+top_row_space = 10
 
 max_num_user_pokemon = 4
 max_num_enemy_pokemon = 8
@@ -20,14 +20,14 @@ font_size = 8
 max_name_length = 10
 
 name_size = font_size*max_name_length
-status_height = 2*font_size + 6
+status_height = 4*font_size
 health_border = (1, 6)
 health_bar = (
   name_size - 7*font_size/2 - 2*health_border[0],
   health_border[1] - 2
 )
 
-ui_height = 100
+ui_height = 9*font_size
 
 black = (0, 0, 0)
 white = (255, 255, 255)
@@ -76,6 +76,7 @@ class BattleUI(object):
     surface.fill(white)
     self.draw_user_pokemon(surface)
     self.draw_enemy_pokemon(surface)
+    self.draw_menu(surface)
 
   def draw_user_pokemon(self, surface):
     top = screen_size[1] - ui_height - self.user_sprite.height - status_height
@@ -88,7 +89,7 @@ class BattleUI(object):
       top_row = (num + 1)/2
     for row in xrange(2):
       pokemon = self.enemy_pokemon[row*top_row:(row + 1)*top_row]
-      top = (row + 1)*row_space + row*(self.enemy_sprite.height + status_height)
+      top = top_row_space + row*(self.enemy_sprite.height + status_height)
       shift = bool(row and (num % 2))
       self.draw_pokemon_row(surface, pokemon, self.enemy_sprite, top, shift)
 
@@ -151,3 +152,24 @@ class BattleUI(object):
       width,
       health_bar[1],
     ))
+
+  def draw_menu(self, surface):
+    self.draw_menu_block(surface, [
+      'What will %s do?' % (self.user_pokemon[0].name,),
+      ' AERIAL ACE',
+      '>REST',
+      ' DREAM EATER',
+      ' SHADOW BALL',
+    ], 0, screen_size[0])
+
+  def draw_menu_block(self, surface, lines, left, width):
+    pygame.draw.rect(surface, black, (
+      left,
+      screen_size[1] - ui_height,
+      width,
+      ui_height,
+    ), 1)
+    top = screen_size[1] - ui_height + font_size
+    for line in lines:
+      self.font.draw(surface, line, left + font_size, top)
+      top += 3*font_size/2
