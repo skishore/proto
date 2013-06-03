@@ -1,3 +1,23 @@
+types = set([
+  'NORMAL',
+  'FIGHTING',
+  'FLYING',
+  'POISON',
+  'GROUND',
+  'ROCK',
+  'BUG',
+  'GHOST',
+  'STEEL',
+  'FIRE',
+  'WATER',
+  'GRASS',
+  'ELECTRIC',
+  'PSYCHIC',
+  'ICE',
+  'DRAGON',
+  'DARK',
+])
+
 pokedex_data = {
   1: {'johto': 226, 'name': 'BULBASAUR'},
   2: {'johto': 227, 'name': 'IVYSAUR'},
@@ -27,10 +47,10 @@ pokedex_data = {
   26: {'johto': 23, 'name': 'RAICHU'},
   27: {'johto': 48, 'name': 'SANDSHREW'},
   28: {'johto': 49, 'name': 'SANDSLASH'},
-  29: {'johto': 95, 'name': 'NIDORAN'},
+  29: {'johto': 95, 'name': 'NIDORAN F'},
   30: {'johto': 96, 'name': 'NIDORINA'},
   31: {'johto': 97, 'name': 'NIDOQUEEN'},
-  32: {'johto': 98, 'name': 'NIDORAN'},
+  32: {'johto': 98, 'name': 'NIDORAN M'},
   33: {'johto': 99, 'name': 'NIDORINO'},
   34: {'johto': 100, 'name': 'NIDOKING'},
   35: {'johto': 41, 'name': 'CLEFAIRY'},
@@ -81,7 +101,7 @@ pokedex_data = {
   80: {'johto': 81, 'name': 'SLOWBRO'},
   81: {'johto': 118, 'name': 'MAGNEMITE'},
   82: {'johto': 119, 'name': 'MAGNETON'},
-  83: {'johto': 158, 'name': 'FARFETCH'},
+  83: {'johto': 158, 'name': "FARFETCH'D"},
   84: {'johto': 199, 'name': 'DODUO'},
   85: {'johto': 200, 'name': 'DODRIO'},
   86: {'johto': 176, 'name': 'SEEL'},
@@ -120,7 +140,7 @@ pokedex_data = {
   119: {'johto': 79, 'name': 'SEAKING'},
   120: {'johto': 167, 'name': 'STARYU'},
   121: {'johto': 168, 'name': 'STARMIE'},
-  122: {'johto': 156, 'name': 'MR'},
+  122: {'johto': 156, 'name': 'MR. MIME'},
   123: {'johto': 110, 'name': 'SCYTHER'},
   124: {'johto': 153, 'name': 'JYNX'},
   125: {'johto': 155, 'name': 'ELECTABUZZ'},
@@ -251,3 +271,28 @@ pokedex_data = {
   250: {'johto': 248, 'name': 'HO-OH'},
   251: {'johto': 251, 'name': 'CELEBI'},
 }
+
+raw_pokedex_data = open('data/pokemon.txt', 'r').read()
+
+for (i, line) in enumerate(raw_pokedex_data.split('\r\n')[1:252]):
+  row = line.split(',')
+  assert(int(row[0]) == i + 1)
+  pokemon = pokedex_data[i + 1]
+  assert(row[1].upper() == pokemon['name']), 'Unexpected name: %s' % (row[1],)
+  pokemon['types'] = tuple(t for t in row[-2:] if t != 'null')
+  assert(all(t in types for t in pokemon['types'])), \
+    'Unexpected types: %s' % (row[-2:],)
+
+move_data = {}
+raw_move_data = open('data/my_moves.txt', 'r').read()
+
+for line in raw_move_data.split('\r\n')[1:-1]:
+  row = line.split(',')
+  assert(row[5] in types), 'Unexpected type: %s' % (row[5],)
+  move_data[int(row[0])] = {
+    'name': row[1],
+    'accuracy': row[2],
+    'power': row[3],
+    'pp': row[4],
+    'type': row[5],
+  }
