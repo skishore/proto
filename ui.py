@@ -5,6 +5,8 @@ from font import Font
 from pokedex import get_front_index
 from sprite import Sprite
 
+draw_sprites = False
+
 screen_size = (420, 420)
 back_size = 50
 front_size = 56
@@ -101,11 +103,12 @@ class BattleUI(object):
     left = far_left + (name_size - sprite.width)/2
     sprite.set_position(left, top)
     sprite.set_pokenum(pokemon.num)
-    sprite.draw(surface)
+    if draw_sprites:
+      sprite.draw(surface)
     # Draw the Pokemon's name.
     name = pokemon.name
     left = far_left + (name_size - font_size*len(name))/2
-    top += sprite.height + font_size/2
+    top += (sprite.height + font_size/2)/(1 if draw_sprites else 2)
     self.font.draw(surface, name, left, top)
     # Draw the Pokemon's level.
     offset = (pokemon.level < 10)*font_size/2
