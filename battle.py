@@ -6,7 +6,7 @@ from pokedex import random_pokemon
 class Battle(object):
   def __init__(self):
     self.user_pokemon = [random_pokemon() for i in xrange(3)]
-    self.enemy_pokemon = [random_pokemon() for i in xrange(7)]
+    self.enemy_pokemon = [random_pokemon() for i in xrange(3)]
     self.state = Battle.Initialize(self)
 
   def transition(self, keys):
@@ -81,20 +81,11 @@ class Battle(object):
 
     def transition(self, keys):
       num_enemies = len(self.battle.enemy_pokemon)
-      half_num = (num_enemies + 1)/2 if num_enemies > 4 else num_enemies
       old_which_enemy = self.which_enemy
-      if pygame.K_RIGHT in keys:
-        if self.which_enemy not in (half_num - 1, num_enemies - 1):
-          self.which_enemy += 1
       if pygame.K_LEFT in keys:
-        if self.which_enemy not in (0, half_num):
-          self.which_enemy -= 1
-      if pygame.K_UP in keys:
-        if self.which_enemy >= half_num:
-          self.which_enemy = self.which_enemy - half_num
-      if pygame.K_DOWN in keys:
-        if self.which_enemy < half_num:
-          self.which_enemy = min(self.which_enemy + half_num, num_enemies - 1)
+        self.which_enemy = max(self.which_enemy - 1, 0)
+      if pygame.K_RIGHT in keys:
+        self.which_enemy = min(self.which_enemy + 1, num_enemies - 1)
       if pygame.K_s in keys:
         return (Battle.ChooseMove(self.battle, self.choices[:-1]), True)
       if pygame.K_d in keys:
@@ -106,13 +97,8 @@ class Battle(object):
     def get_menu(self):
       pokemon = self.battle.user_pokemon[self.choices[-1]['poke']]
       move = pokemon.moves[self.choices[-1]['move']]
-      result = ["Target for %s's %s:" % (pokemon.name, move['name'])]
-
-      num_enemies = len(self.battle.enemy_pokemon)
-      half_num = (num_enemies + 1)/2 if num_enemies > 4 else num_enemies
+      result = ["Target for %s's %s:" % (pokemon.name, move['name']), '']
       for (i, enemy) in enumerate(self.battle.enemy_pokemon):
-        if i in (0, half_num):
-          result.append('')
         cursor = '>' if i == self.which_enemy else ' '
         result[-1] += cursor + enemy.name + (12 - len(enemy.name))*' '
       return result

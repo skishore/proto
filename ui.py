@@ -5,20 +5,20 @@ from font import Font
 from pokedex import get_front_index
 from sprite import Sprite
 
-draw_sprites = False
+draw_sprites = True
 
-screen_size = (420, 420)
+screen_size = (360, 300)
 back_size = 50
 front_size = 56
-top_row_space = 10
 
-max_num_user_pokemon = 4
-max_num_enemy_pokemon = 8
+max_num_user_pokemon = 3
+max_num_enemy_pokemon = 3
 
 font_size = 8
 max_name_length = 10
 
 name_size = font_size*max_name_length
+top_row_space = font_size
 status_height = 4*font_size
 health_border = (1, 6)
 health_bar = (
@@ -80,21 +80,13 @@ class BattleUI(object):
     self.draw_pokemon_row(surface, user_pokemon, self.user_sprite, top)
 
   def draw_enemy_pokemon(self, surface, enemy_pokemon):
-    num = len(enemy_pokemon)
-    top_row = num
-    if num > max_num_enemy_pokemon/2:
-      top_row = (num + 1)/2
-    for row in xrange(2):
-      pokemon = enemy_pokemon[row*top_row:(row + 1)*top_row]
-      top = top_row_space + row*(self.enemy_sprite.height + status_height)
-      shift = bool(row and (num % 2))
-      self.draw_pokemon_row(surface, pokemon, self.enemy_sprite, top, shift)
+    self.draw_pokemon_row(surface, enemy_pokemon, self.enemy_sprite, top_row_space)
 
-  def draw_pokemon_row(self, surface, pokemon_list, sprite, top, shift=False):
+  def draw_pokemon_row(self, surface, pokemon_list, sprite, top):
     num = len(pokemon_list)
     total = screen_size[0] + name_size
     for (i, pokemon) in enumerate(pokemon_list):
-      left = int((i + 1 + 0.5*shift)*total/(num + 1 + shift)) - name_size
+      left = int((i + 1)*total/(num + 1)) - name_size
       self.draw_pokemon(surface, sprite, pokemon, left, top)
 
 
