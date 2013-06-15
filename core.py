@@ -1,38 +1,33 @@
-def do_moves(battle, choices):
-  '''
-  Executes the given moves in the order of the monster's speeds.
-  '''
-  choices = {choice['user']: choice for choice in choices}
-  done = set()
-  fainted = set()
-  result = []
-  # Recompute the execution order for each move to account for changes in speed.
-  while len(done) < len(choices):
+class Core(object):
+  @staticmethod
+  def execute(battle, choices, done):
+    '''
+    Executes a single move and returns a (result, done) pair.
+    The result is a dictionary with the following keys:
+      menu: a list of menus to display to the user
+      execute: a callback to execute when the user acks the move
+    '''
+    assert(len(done) < len(choices))
     for index in battle.execution_order():
       if index not in done:
         done.add(index)
         assert(choices[index]['type'] == 'move')
-        result.extend(do_move(battle, index, choices[index], fainted))
-  if fainted:
-    result.append({'execute': Updates.faint(fainted)})
-  return result
+        return (Core.do_move(battle, index, choices[index]), done)
 
-
-def do_move(battle, index, choice, fainted):
-  result = []
-  if index not in fainted:
-    pokemon = battle.get_pokemon(index)
+  @staticmethod
+  def do_move(battle, index, choice):
+    '''
+    Returns the actual result dict once the mover is chosen.
+    '''
+    result = {}
     (move, target) = (choice['move'], choice['target'])
-    is_user = (index[0] == 'user')
-    target = ('enemy' if is_user else 'user', target)
-    result.append({
-      'menu': ['%s%s used %s!' % (
-        '' if is_user else 'Enemy ',
-        pokemon.name,
-        move.name,
-      )],
-    })
-  return result
+    user = battle.get_pokemon(index)
+    target = battle.get_pokemon(target)
+    is_pc = (index[0] == 'pc')
+    result['menu'] = [[
+      '%s%s used %s on %s!' % ('' if is_pc else 'Enemy ', user.name, move.name, target.name),
+    ]]
+    return result
 
 
 class Updates(object):

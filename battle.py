@@ -2,8 +2,8 @@ from collections import defaultdict
 import pygame
 from random import sample
 
-from ai import make_ai_choices
-from core import do_moves
+from ai import AI
+from core import Core
 from pokemon import Pokemon
 
 
@@ -26,14 +26,6 @@ class Battle(object):
 
   def get_pokemon(self, index):
     return self.pokemon[tuple(index)]
-
-  def compute_turn_results(self, choices):
-    '''
-    Takes a list of choices, which are (which_move, which_target) pairs.
-    Computes the list of results and returns them.
-    '''
-    choices.extend(make_ai_choices(self))
-    return do_moves(self, choices)
 
   def execution_order(self):
     '''
@@ -64,7 +56,7 @@ class BattleStates(object):
       self.battle = battle
 
     def transition(self, keys):
-      return (BattleStates.NextMove(self.battle), True)
+      return (BattleStates.ChooseMove(self.battle), True)
 
     def get_menu(self):
       return []
@@ -100,7 +92,7 @@ class BattleStates(object):
           return (BattleStates.ChooseTarget(self.battle, self.choices, targets), True)
         if targets:
           self.choices[-1]['target'] = targets[0]
-        return (BattleStates.NextMove(self.battle, self.choices), True)
+        return (BattleStates.NextChoice(self.battle, self.choices), True)
       return (self, False)
 
     def get_menu(self):
@@ -112,11 +104,14 @@ class BattleStates(object):
       return result
 
   @staticmethod
-  def NextMove(battle, choices=None):
+  def NextChoice(battle, choices=None):
     choices = choices or []
     if len(choices) < battle.num_pcs:
       return BattleStates.ChooseMove(battle, choices)
-    return BattleStates.TurnResults(battle, choices)
+    # Let the AI make choices, then reformat the choices and pass to executor.
+    choices.extend(AI.make_random_choices(battle))
+    choices = {choice.pop('user'): choice for choice in choices}
+    return BattleStates.ExecuteTurn(battle, choices)
 
   class ChooseTarget(object):
     '''
@@ -138,7 +133,7 @@ class BattleStates(object):
         return (BattleStates.ChooseMove(self.battle, self.choices[:-1]), True)
       if pygame.K_d in keys:
         self.choices[-1]['target'] = self.targets[self.target]
-        return (BattleStates.NextMove(self.battle, self.choices), True)
+        return (BattleStates.NextChoice(self.battle, self.choices), True)
       return (self, self.target != old_target)
 
     def get_menu(self):
@@ -151,31 +146,31 @@ class BattleStates(object):
         result[-1] += cursor + target.name + (12 - len(target.name))*' '
       return result
 
-  class TurnResults(object):
+  class ExecuteTurn(object):
     '''
-    Display the results of the battle.
+    Execute a step of the battle after the user has made their choices.
+    This generally involves making one move and computing the effect.
     '''
-    def __init__(self, battle, choices):
+    def __init__(self, battle, choices, done=None):
       self.battle = battle
-      self.results = battle.compute_turn_results(choices)
-      assert('menu' in self.results[0])
-      self.result = 0
-
-    def advance_result(self):
-      if 'update' in self.results[self.result]:
-        self.results[self.result]['update'](self.battle)
-      self.result += 1
+      self.choices = choices
+      done = done or set()
+      (self.result, self.done) = Core.execute(battle, choices, done)
+      self.menu = 0
 
     def transition(self, keys):
-      old_result = self.result
+      old_menu = self.menu
       if pygame.K_d in keys:
-        self.advance_result()
-        while self.result < len(self.results) and \
-            'menu' not in self.results[self.result]:
-          self.advance_result()
-        if self.result == len(self.results):
-          return (BattleStates.ChooseMove(self.battle), True)
-      return (self, self.result == old_result)
+        self.menu += 1
+        if self.menu == len(self.result['menu']):
+          return (BattleStates.NextResult(self.battle, self.choices, self.done), True)
+      return (self, self.menu != old_menu)
 
     def get_menu(self):
-      return self.results[self.result]['menu']
+      return self.result['menu'][self.menu]
+
+  @staticmethod
+  def NextResult(battle, choices, done):
+    if len(done) < len(choices):
+      return BattleStates.ExecuteTurn(battle, choices, done)
+    return BattleStates.ChooseMove(battle)
