@@ -42,7 +42,7 @@ class Callbacks(object):
     if damage < target.cur_hp:
       def update(battle, choices):
         target.cur_hp -= damage
-        return ([['%s took %s damage.' % (battle.get_name(target_id), damage)]], None)
+        return (['%s took %s damage.' % (battle.get_name(target_id), damage)], None)
       return update
     else:
       return Callbacks.faint(battle, target_id)
@@ -53,5 +53,5 @@ class Callbacks(object):
       if index in choices:
         del choices[index]
       battle.get_pokemon(index).cur_hp = 0
-      return ([['%s fainted!' % (battle.get_name(index),)]], None)
+      return (['%s fainted!' % (battle.get_name(index),)], None)
     return update
