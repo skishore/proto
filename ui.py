@@ -136,12 +136,13 @@ class BattleUI(object):
     # Draw the actual health bar in the correct color.
     color = green if health > 0.5 else yellow if health > 0.25 else red
     width = int(math.ceil(health*health_bar[0]))
-    pygame.draw.rect(surface, color, (
-      left + health_border[0],
-      top - health_bar[1]/2,
-      width,
-      health_bar[1],
-    ))
+    if width:
+      pygame.draw.rect(surface, color, (
+        left + health_border[0],
+        top - health_bar[1]/2,
+        width,
+        health_bar[1],
+      ))
 
   def draw_menu(self, surface, menu):
     self.draw_menu_block(surface, menu, 0, screen_size[0])
