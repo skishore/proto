@@ -109,7 +109,8 @@ class BattleUI(object):
     # Draw the Pokemon's health bar.
     left = far_left + 7*font_size/2 - offset
     top += font_size/2
-    self.draw_health_bar(surface, pokemon.health, left, top)
+    health = float(pokemon.cur_hp)/pokemon.max_hp
+    self.draw_health_bar(surface, health, left, top)
 
   def draw_health_bar(self, surface, health, left, top):
     # Draw the left and right borders of the health bar.

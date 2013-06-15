@@ -23,16 +23,23 @@ def get_front_index(pokenum):
 
 
 class Pokemon(object):
+  stats = ('atk', 'def', 'spa', 'spd', 'spe')
+
   def __init__(self, num, level=1):
     self.num = num
     self.level = level
     self.name = pokedex_data[num]['name']
-    self.health = 1.0
+    self.max_hp = pokedex_data[num]['hp']
+    self.cur_hp = self.max_hp
+    for stat in self.stats:
+      setattr(self, stat, pokedex_data[num][stat])
 
+  def apply_noise(self):
+    for stat in self.stats:
+      setattr(self, stat, getattr(self, stat) + randint(0, 15))
 
 def random_pokemon():
   pokemon = Pokemon(randint(1, 251), randint(1, 10))
-  pokemon.health = 1.0*randint(1, 100)/100
   num_moves = randint(3, 4)
   pokemon.moves = [dict(move_data[m]) for m in sample(moves, num_moves)]
   return pokemon

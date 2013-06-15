@@ -279,7 +279,13 @@ for (i, line) in enumerate(raw_pokedex_data.split('\r\n')[1:252]):
   assert(int(row[0]) == i + 1)
   pokemon = pokedex_data[i + 1]
   assert(row[1].upper() == pokemon['name']), 'Unexpected name: %s' % (row[1],)
-  pokemon['types'] = tuple(t for t in row[-2:] if t != 'null')
+  pokemon['hp'] = int(row[2])
+  pokemon['atk'] = int(row[3])
+  pokemon['def'] = int(row[4])
+  pokemon['spa'] = int(row[5])
+  pokemon['spd'] = int(row[6])
+  pokemon['spe'] = int(row[7])
+  pokemon['types'] = tuple(t for t in row[8:10] if t != 'null')
   assert(all(t in types for t in pokemon['types'])), \
     'Unexpected types: %s' % (row[-2:],)
 
