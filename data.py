@@ -38,7 +38,7 @@ for (i, line) in enumerate(raw_pokedex_data.split('\r\n')[1:252]):
     'types': tuple(t for t in row[9:11] if t != 'null'),
   }
   assert(all(t in types for t in pokemon['types'])), \
-    'Unexpected types: %s' % (row[-2:],)
+    'Unexpected types: %s' % (pokemon['types'],)
   pokedex_data[i + 1] = pokemon
 
 assert(set(pokedex_data.iterkeys()) == set(xrange(1, 252)))
@@ -63,8 +63,8 @@ for line in raw_move_data.split('\r\n')[1:-1]:
   assert(row[5] in types), 'Unexpected type: %s' % (row[5],)
   move_data[int(row[0])] = {
     'name': row[1].upper(),
-    'accuracy': row[2],
-    'power': row[3],
-    'pp': row[4],
+    'accuracy': int(row[2]),
+    'power': int(row[3]),
+    'pp': int(row[4]),
     'type': row[5],
   }
