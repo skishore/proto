@@ -1,8 +1,8 @@
 import math
 import pygame
 
+from data import get_front_index
 from font import Font
-from pokedex import get_front_index
 from sprite import Sprite
 
 draw_sprites = True
@@ -11,8 +11,8 @@ screen_size = (360, 300)
 back_size = 50
 front_size = 56
 
-max_num_user_pokemon = 3
-max_num_enemy_pokemon = 3
+max_num_pc_pokemon = 3
+max_num_npc_pokemon = 3
 
 font_size = 8
 max_name_length = 10
@@ -71,16 +71,16 @@ class BattleUI(object):
 
   def draw(self, surface, battle):
     surface.fill(white)
-    self.draw_user_pokemon(surface, battle.user_pokemon)
-    self.draw_enemy_pokemon(surface, battle.enemy_pokemon)
+    self.draw_pc_pokemon(surface, battle.all_pcs())
+    self.draw_npc_pokemon(surface, battle.all_npcs())
     self.draw_menu(surface, battle.get_menu())
 
-  def draw_user_pokemon(self, surface, user_pokemon):
+  def draw_pc_pokemon(self, surface, pc_pokemon):
     top = screen_size[1] - ui_height - self.user_sprite.height - status_height
-    self.draw_pokemon_row(surface, user_pokemon, self.user_sprite, top)
+    self.draw_pokemon_row(surface, pc_pokemon, self.user_sprite, top)
 
-  def draw_enemy_pokemon(self, surface, enemy_pokemon):
-    self.draw_pokemon_row(surface, enemy_pokemon, self.enemy_sprite, top_row_space)
+  def draw_npc_pokemon(self, surface, npc_pokemon):
+    self.draw_pokemon_row(surface, npc_pokemon, self.enemy_sprite, top_row_space)
 
   def draw_pokemon_row(self, surface, pokemon_list, sprite, top):
     num = len(pokemon_list)
@@ -88,7 +88,6 @@ class BattleUI(object):
     for (i, pokemon) in enumerate(pokemon_list):
       left = int((i + 1)*total/(num + 1)) - name_size
       self.draw_pokemon(surface, sprite, pokemon, left, top)
-
 
   def draw_pokemon(self, surface, sprite, pokemon, far_left, top):
     # Draw the Pokemon's (back or front) sprite.
