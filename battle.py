@@ -154,20 +154,29 @@ class BattleStates(object):
     def __init__(self, battle, choices, done=None):
       self.battle = battle
       self.choices = choices
-      done = done or set()
-      (self.result, self.done) = Core.execute(battle, choices, done)
+      self.done = done or set()
+      (self.menus, self.callback) = Core.execute(
+        self.battle, self.choices, self.done,
+      )
       self.menu = 0
 
     def transition(self, keys):
       old_menu = self.menu
       if pygame.K_d in keys:
         self.menu += 1
-        if self.menu == len(self.result['menu']):
-          return (BattleStates.NextResult(self.battle, self.choices, self.done), True)
+        if self.menu == len(self.menus):
+          if self.callback:
+            (self.menus, self.callback) = self.callback(
+              self.battle, self.choices, self.done,
+            )
+            self.menu = 0
+            return (self, True)
+          else:
+            return (BattleStates.NextResult(self.battle, self.choices, self.done), True)
       return (self, self.menu != old_menu)
 
     def get_menu(self):
-      return self.result['menu'][self.menu]
+      return self.menus[self.menu]
 
   @staticmethod
   def NextResult(battle, choices, done):
