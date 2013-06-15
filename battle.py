@@ -151,13 +151,10 @@ class BattleStates(object):
     Execute a step of the battle after the user has made their choices.
     This generally involves making one move and computing the effect.
     '''
-    def __init__(self, battle, choices, done=None):
+    def __init__(self, battle, choices):
       self.battle = battle
       self.choices = choices
-      self.done = done or set()
-      (self.menus, self.callback) = Core.execute(
-        self.battle, self.choices, self.done,
-      )
+      (self.menus, self.callback) = Core.execute(self.battle, self.choices)
       self.menu = 0
 
     def transition(self, keys):
@@ -166,20 +163,18 @@ class BattleStates(object):
         self.menu += 1
         if self.menu == len(self.menus):
           if self.callback:
-            (self.menus, self.callback) = self.callback(
-              self.battle, self.choices, self.done,
-            )
+            (self.menus, self.callback) = self.callback(self.battle, self.choices)
             self.menu = 0
             return (self, True)
           else:
-            return (BattleStates.NextResult(self.battle, self.choices, self.done), True)
+            return (BattleStates.NextResult(self.battle, self.choices), True)
       return (self, self.menu != old_menu)
 
     def get_menu(self):
       return self.menus[self.menu]
 
   @staticmethod
-  def NextResult(battle, choices, done):
-    if len(done) < len(choices):
-      return BattleStates.ExecuteTurn(battle, choices, done)
+  def NextResult(battle, choices):
+    if choices:
+      return BattleStates.ExecuteTurn(battle, choices)
     return BattleStates.ChooseMove(battle)

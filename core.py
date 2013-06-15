@@ -1,18 +1,18 @@
 class Core(object):
   @staticmethod
-  def execute(battle, choices, done):
+  def execute(battle, choices):
     '''
     Executes a single move and returns a (menus, callback) pair.
     The menus are displayed, and when they are emptied, the callback is called.
 
-    This method updates the done set in place.
+    This method may update the battle and the set of remaining choices.
     '''
-    assert(len(done) < len(choices))
+    assert(choices)
     for index in battle.execution_order():
-      if index not in done:
-        done.add(index)
-        assert(choices[index]['type'] == 'move')
-        return Core.do_move(battle, index, choices[index])
+      if index in choices:
+        choice = choices.pop(index)
+        assert(choice['type'] == 'move')
+        return Core.do_move(battle, index, choice)
 
   @staticmethod
   def do_move(battle, index, choice):
@@ -38,5 +38,5 @@ class Callbacks(object):
   '''
   @staticmethod
   def faint(indices):
-    def update(battle, choices, done):
+    def update(battle, choices):
       print 'The following indices fainted: %s' % (indices,)
