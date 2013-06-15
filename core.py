@@ -1,21 +1,14 @@
-from collections import defaultdict
-from random import sample
-
-
-def do_moves(battle, user_choices, enemy_choices):
+def do_moves(battle, choices):
   '''
   Executes the given moves in the order of the monster's speeds.
   '''
-  choices = dict((('user', i), choice) for (i, choice) in enumerate(user_choices))
-  choices.update((('enemy', i), choice) for (i, choice) in enumerate(enemy_choices))
-  # done is a list of monsters that have either moved or have fainted.
-  # fainted is a list of the ones that have fainted.
+  choices = {choice['user']: choice for choice in choices}
   done = set()
   fainted = set()
   result = []
   # Recompute the execution order for each move to account for changes in speed.
   while len(done) < len(choices):
-    for index in execution_order(battle.user_pokemon, battle.enemy_pokemon):
+    for index in battle.execution_order():
       if index not in done:
         done.add(index)
         assert(choices[index]['type'] == 'move')
@@ -36,21 +29,10 @@ def do_move(battle, index, choice, fainted):
       'menu': ['%s%s used %s!' % (
         '' if is_user else 'Enemy ',
         pokemon.name,
-        pokemon.moves[move]['name'],
+        move.name,
       )],
     })
   return result
-
-
-def execution_order(user_pokemon, enemy_pokemon):
-  speeds = defaultdict(list)
-  for (i, pokemon) in enumerate(user_pokemon):
-    speeds[pokemon.spe].append(('user', i))
-  for (i, pokemon) in enumerate(enemy_pokemon):
-    speeds[pokemon.spe].append(('enemy', i))
-  for speed in speeds:
-    speeds[speed] = sample(speeds[speed], len(speeds[speed]))
-  return sum((speeds[speed] for speed in sorted(speeds.iterkeys())), [])
 
 
 class Updates(object):

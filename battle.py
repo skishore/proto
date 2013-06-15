@@ -1,4 +1,6 @@
+from collections import defaultdict
 import pygame
+from random import sample
 
 from ai import make_ai_choices
 from core import do_moves
@@ -32,6 +34,17 @@ class Battle(object):
     '''
     choices.extend(make_ai_choices(self))
     return do_moves(self, choices)
+
+  def execution_order(self):
+    '''
+    Returns a list of Pokemon indices sorted by speed. Ties are broken randomly.
+    '''
+    speeds = defaultdict(list)
+    for (index, pokemon) in self.pokemon.iteritems():
+      speeds[pokemon.spe].append(index)
+    for (speed, indices) in speeds.iteritems():
+      speeds[speed] = sample(indices, len(indices))
+    return sum((speeds[speed] for speed in sorted(speeds.iterkeys())), [])
 
   def transition(self, keys):
     '''
