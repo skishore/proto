@@ -1,5 +1,6 @@
 from random import sample
 
+from core import Callbacks
 from data import move_data
 
 
@@ -15,13 +16,31 @@ class Move(object):
     self.max_pp = data['pp']
     self.cur_pp = self.max_pp
 
-  def get_targets(self, battle, user):
-    # A placeholder implementation.
+  def get_target_ids(self, battle, index):
+    # A placeholder implementation of a damaging, single-target move.
     # Some moves might target user pokemon, or have no target at all.
-    if user[0] == 'pc':
-      return [('npc', i) for i in range(battle.num_npcs)]
-    return [('pc', i) for i in range(battle.num_pcs)]
+    if index[0] == 'npc':
+      return [('pc', i) for i in range(battle.num_pcs)]
+    return [('npc', i) for i in range(battle.num_npcs)]
 
+  def execute(self, battle, user_id, target_id):
+    '''
+    Move execution methods should return a (menus, callback) pair.
+    '''
+    # A placeholder implementation of a damaging, single-target move.
+    user = battle.get_pokemon(user_id)
+    target = battle.get_pokemon(target_id)
+    menus = [['%s used %s!' % (battle.get_name(user_id), self.name)]]
+    damage = self.compute_damage(battle, user, target)
+    callback = Callbacks.do_damage(battle, target_id, damage)
+    return (menus, callback)
+
+  def compute_damage(self, battle, user, target):
+    '''
+    Returns the amount of damage done if user uses this move on target.
+    '''
+    # A placeholder implementation of a damaging, single-target move.
+    return self.power
 
   @staticmethod
   def random_moves(num_moves):

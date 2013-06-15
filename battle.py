@@ -24,6 +24,10 @@ class Battle(object):
   def get_menu(self):
     return self.state.get_menu()
 
+  def get_name(self, index):
+    pokemon = self.pokemon[tuple(index)]
+    return '%s%s' % ('Enemy ' if index[0] == 'npc' else '', pokemon.name)
+
   def get_pokemon(self, index):
     return self.pokemon[tuple(index)]
 
@@ -68,11 +72,11 @@ class BattleStates(object):
     def __init__(self, battle, choices=None):
       self.battle = battle
       self.choices = choices or []
-      self.user = ('pc', len(self.choices))
+      self.user_id = ('pc', len(self.choices))
       self.move = 0
 
     def transition(self, keys):
-      pokemon = self.battle.get_pokemon(self.user)
+      pokemon = self.battle.get_pokemon(self.user_id)
       if pygame.K_UP in keys and self.move > 0:
         self.move -= 1
         return (self, True)
@@ -84,19 +88,19 @@ class BattleStates(object):
       if pygame.K_d in keys:
         self.choices.append({
           'type': 'move',
-          'user': self.user,
+          'user_id': self.user_id,
           'move': pokemon.moves[self.move],
         })
-        targets = self.choices[-1]['move'].get_targets(self.battle, self.user)
-        if len(targets) > 1:
-          return (BattleStates.ChooseTarget(self.battle, self.choices, targets), True)
-        if targets:
-          self.choices[-1]['target'] = targets[0]
+        target_ids = self.choices[-1]['move'].get_target_ids(self.battle, self.user_id)
+        if len(target_ids) > 1:
+          return (BattleStates.ChooseTarget(self.battle, self.choices, target_ids), True)
+        if target_ids:
+          self.choices[-1]['target_id'] = target_ids[0]
         return (BattleStates.NextChoice(self.battle, self.choices), True)
       return (self, False)
 
     def get_menu(self):
-      pokemon = self.battle.get_pokemon(self.user)
+      pokemon = self.battle.get_pokemon(self.user_id)
       result = ['What will %s do?' % (pokemon.name,)]
       for (i, move) in enumerate(pokemon.moves):
         cursor = '>' if i == self.move else ' '
@@ -110,17 +114,17 @@ class BattleStates(object):
       return BattleStates.ChooseMove(battle, choices)
     # Let the AI make choices, then reformat the choices and pass to executor.
     choices.extend(AI.make_random_choices(battle))
-    choices = {choice.pop('user'): choice for choice in choices}
+    choices = {choice.pop('user_id'): choice for choice in choices}
     return BattleStates.ExecuteTurn(battle, choices)
 
   class ChooseTarget(object):
     '''
     Choose a target for a single-target move.
     '''
-    def __init__(self, battle, choices, targets):
+    def __init__(self, battle, choices, target_ids):
       self.battle = battle
       self.choices = choices
-      self.targets = targets
+      self.target_ids = target_ids
       self.target = 0
 
     def transition(self, keys):
@@ -128,20 +132,20 @@ class BattleStates(object):
       if pygame.K_LEFT in keys:
         self.target = max(self.target - 1, 0)
       if pygame.K_RIGHT in keys:
-        self.target = min(self.target + 1, len(self.targets) - 1)
+        self.target = min(self.target + 1, len(self.target_ids) - 1)
       if pygame.K_s in keys:
         return (BattleStates.ChooseMove(self.battle, self.choices[:-1]), True)
       if pygame.K_d in keys:
-        self.choices[-1]['target'] = self.targets[self.target]
+        self.choices[-1]['target_id'] = self.target_ids[self.target]
         return (BattleStates.NextChoice(self.battle, self.choices), True)
       return (self, self.target != old_target)
 
     def get_menu(self):
-      user = self.battle.get_pokemon(self.choices[-1]['user'])
+      user = self.battle.get_pokemon(self.choices[-1]['user_id'])
       move = self.choices[-1]['move']
       result = ["Target for %s's %s:" % (user.name, move.name), '']
-      for (i, target) in enumerate(self.targets):
-        target = self.battle.get_pokemon(target)
+      for (i, target_id) in enumerate(self.target_ids):
+        target = self.battle.get_pokemon(target_id)
         cursor = '>' if i == self.target else ' '
         result[-1] += cursor + target.name + (12 - len(target.name))*' '
       return result

@@ -12,23 +12,7 @@ class Core(object):
       if index in choices:
         choice = choices.pop(index)
         assert(choice['type'] == 'move')
-        return Core.do_move(battle, index, choice)
-
-  @staticmethod
-  def do_move(battle, index, choice):
-    '''
-    Returns the actual result dict once the mover is chosen.
-    '''
-    menus = []
-    callback = None
-    (move, target) = (choice['move'], choice['target'])
-    user = battle.get_pokemon(index)
-    target = battle.get_pokemon(target)
-    is_pc = (index[0] == 'pc')
-    menus.append(['%s%s used %s on %s!' % (
-      '' if is_pc else 'Enemy ', user.name, move.name, target.name,
-    )])
-    return (menus, callback)
+        return choice['move'].execute(battle, index, choice.get('target_id'))
 
 
 class Callbacks(object):
@@ -37,6 +21,20 @@ class Callbacks(object):
   These updates are functions with the same signature as Core.execute.
   '''
   @staticmethod
-  def faint(indices):
+  def do_damage(battle, target_id, damage):
+    target = battle.get_pokemon(target_id)
+    if damage < target.cur_hp:
+      def update(battle, choices):
+        target.cur_hp -= damage
+        return ([['%s took %s damage.' % (battle.get_name(target_id), damage)]], None)
+      return update
+    else:
+      return Callbacks.faint(battle, target_id)
+
+  @staticmethod
+  def faint(battle, index):
     def update(battle, choices):
-      print 'The following indices fainted: %s' % (indices,)
+      if index in choices:
+        del choices[index]
+      return ([['%s fainted!' % (battle.get_name(index),)]], None)
+    return update
