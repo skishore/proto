@@ -3,7 +3,7 @@ word_speed = 1
 
 # The number of flashes and the number of frames for each one.
 rounds = 2
-frequency = 4
+period = 2
 
 
 class AnimateMenu(object):
@@ -32,10 +32,10 @@ class AnimateMenu(object):
 
 
 class FlashPokemon(object):
-  def __init__(self, target_id, rounds=rounds, frequency=frequency):
+  def __init__(self, target_id, rounds=rounds, period=period):
     self.target_id = target_id
-    self.length = 2*rounds*frequency
-    self.frequency = frequency
+    self.length = 2*rounds*period
+    self.period = period
     self.index = 0
 
   def is_done(self):
@@ -45,7 +45,7 @@ class FlashPokemon(object):
     self.index += 1
 
   def update_display(self, display):
-    if (self.index / self.frequency) % 2:
+    if (self.index / self.period) % 2:
       if 'hidden_indices' not in display:
         display['hidden_indices'] = set()
       display['hidden_indices'].add(self.target_id)
