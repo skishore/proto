@@ -72,30 +72,31 @@ class BattleUI(object):
   def draw(self, surface, battle):
     surface.fill(white)
     display = battle.get_display()
-    self.draw_pc_pokemon(surface, battle.all_pcs())
-    self.draw_npc_pokemon(surface, battle.all_npcs())
+    self.draw_pc_pokemon(surface, battle.all_pcs(), display)
+    self.draw_npc_pokemon(surface, battle.all_npcs(), display)
     self.draw_menu(surface, display['menu'])
 
-  def draw_pc_pokemon(self, surface, pc_pokemon):
+  def draw_pc_pokemon(self, surface, pc_pokemon, display):
     top = screen_size[1] - ui_height - self.user_sprite.height - status_height
-    self.draw_pokemon_row(surface, pc_pokemon, self.user_sprite, top)
+    self.draw_pokemon_row(surface, pc_pokemon, top, 'pc', display)
 
-  def draw_npc_pokemon(self, surface, npc_pokemon):
-    self.draw_pokemon_row(surface, npc_pokemon, self.enemy_sprite, top_row_space)
+  def draw_npc_pokemon(self, surface, npc_pokemon, display):
+    self.draw_pokemon_row(surface, npc_pokemon, top_row_space, 'npc', display)
 
-  def draw_pokemon_row(self, surface, pokemon_list, sprite, top):
+  def draw_pokemon_row(self, surface, pokemon_list, top, side, display):
     num = len(pokemon_list)
     total = screen_size[0] + name_size
+    sprite = self.user_sprite if side == 'pc' else self.enemy_sprite
     for (i, pokemon) in enumerate(pokemon_list):
       left = int((i + 1)*total/(num + 1)) - name_size
-      self.draw_pokemon(surface, sprite, pokemon, left, top)
+      self.draw_pokemon(surface, sprite, pokemon, left, top, (side, i), display)
 
-  def draw_pokemon(self, surface, sprite, pokemon, far_left, top):
+  def draw_pokemon(self, surface, sprite, pokemon, far_left, top, index, display):
     # Draw the Pokemon's (back or front) sprite.
     left = far_left + (name_size - sprite.width)/2
     sprite.set_position(left, top)
     sprite.set_pokenum(pokemon.num)
-    if draw_sprites:
+    if draw_sprites and index not in display.get('hidden_indices', ()):
       sprite.draw(surface)
     # Draw the Pokemon's name.
     name = pokemon.name

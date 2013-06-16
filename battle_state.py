@@ -157,7 +157,6 @@ class ExecuteTurn(BattleState):
     self.battle = battle
     self.choices = choices
     self.execute_step(Core.execute)
-    self.animations.append(AnimateMenu(self.menu))
 
   def execute_step(self, executor):
     '''
@@ -172,14 +171,13 @@ class ExecuteTurn(BattleState):
     self.callback = result.get('callback')
 
   def handle_input(self, keys):
-    old_menu = self.menu
-    if pygame.K_d in keys:
+    if pygame.K_d in keys or not self.menu:
       if self.callback:
         self.execute_step(self.callback)
         return (self, True)
       else:
         return (NextResult(self.battle, self.choices), True)
-    return (self, self.menu != old_menu)
+    return (self, False)
 
   def get_menu(self):
     return self.menu

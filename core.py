@@ -1,6 +1,8 @@
 from collections import defaultdict
 from random import sample
 
+from battle_animations import FlashPokemon
+
 
 class Core(object):
   @staticmethod
@@ -46,7 +48,10 @@ class Callbacks(object):
     if damage < target.cur_hp:
       def update(battle, choices):
         target.cur_hp -= damage
-        return {'menu': ['%s took %s damage.' % (battle.get_name(target_id), damage)]}
+        return Callbacks.chain([
+          {'animations': [FlashPokemon(target_id)]},
+          {'menu': ['%s took %s damage.' % (battle.get_name(target_id), damage)]},
+        ])
       return update
     else:
       return Callbacks.faint(battle, target_id)
@@ -59,3 +64,11 @@ class Callbacks(object):
       battle.get_pokemon(index).cur_hp = 0
       return {'menu': ['%s fainted!' % (battle.get_name(index),)]}
     return update
+
+  @staticmethod
+  def chain(displays):
+    display = displays[0]
+    if len(displays) == 1:
+      return lambda battle, choices: display
+    display['callback'] = Callbacks.chain(displays[1:])
+    return display
