@@ -28,7 +28,10 @@ class Core(object):
       speeds[pokemon.spe].append(index)
     for (speed, indices) in speeds.iteritems():
       speeds[speed] = sample(indices, len(indices))
-    return sum((speeds[speed] for speed in sorted(speeds.iterkeys())), [])
+    return sum((
+      speeds[speed] for speed in
+      sorted(speeds.iterkeys(), reverse=True)
+    ), [])
 
 
 class Callbacks(object):
