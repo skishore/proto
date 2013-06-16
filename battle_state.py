@@ -1,4 +1,5 @@
 import pygame
+import sys
 
 from ai import AI
 from battle_animations import AnimateMenu
@@ -66,13 +67,12 @@ class ChooseMove(BattleState):
     return 'What will %s do?' % (self.battle.get_name(self.user_id),)
 
   def handle_input(self, keys):
+    old_move = self.move
     pokemon = self.battle.get_pokemon(self.user_id)
-    if pygame.K_UP in keys and self.move > 0:
-      self.move -= 1
-      return (self, True)
-    if pygame.K_DOWN in keys and self.move < len(pokemon.moves) - 1:
-      self.move += 1
-      return (self, True)
+    if pygame.K_UP in keys:
+      self.move = max(self.move - 1, 0)
+    if pygame.K_DOWN in keys:
+      self.move = min(self.move + 1, len(pokemon.moves) - 1)
     if pygame.K_s in keys and self.choices:
       return (ChooseMove(self.battle, self.choices[:-1]), True)
     if pygame.K_d in keys:
@@ -87,7 +87,7 @@ class ChooseMove(BattleState):
       if target_ids:
         self.choices[-1]['target_id'] = target_ids[0]
       return (NextChoice(self.battle, self.choices), True)
-    return (self, False)
+    return (self, self.move != old_move)
 
   def get_menu(self):
     pokemon = self.battle.get_pokemon(self.user_id)
@@ -199,11 +199,29 @@ class Finalize(BattleState):
     super(Finalize, self).__init__()
     assert(not battle.num_pcs or not battle.num_npcs)
     self.battle = battle
-    self.menu = ['You won the battle!'] if battle.num_pcs else ['You lost...']
-    self.animations.append(AnimateMenu(self.menu))
+    self.choice = 0
+    self.animations.append(AnimateMenu([self.base_text()]))
+
+  def base_text(self):
+    conditional_text = (('won', '! T') if self.battle.num_pcs else ('lost', '...t'))
+    return 'You %s the battle%sry again?' % conditional_text
 
   def handle_input(self, keys):
-    return (self, False)
+    old_choice = self.choice
+    if pygame.K_UP in keys:
+      self.choice = max(self.choice - 1, 0)
+    if pygame.K_DOWN in keys:
+      self.choice = min(self.choice + 1, 1)
+    if pygame.K_d in keys:
+      if self.choice:
+        sys.exit()
+      self.battle.initialize()
+      return (self.battle.state, True)
+    return (self, self.choice != old_choice)
 
   def get_menu(self):
-    return self.menu
+    result = [self.base_text()]
+    for (i, choice) in enumerate(('YES', 'NO')):
+      cursor = '>' if i == self.choice else ' '
+      result.append(cursor + choice)
+    return result

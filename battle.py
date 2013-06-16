@@ -4,6 +4,9 @@ from pokemon import Pokemon
 
 class Battle(object):
   def __init__(self):
+    self.initialize()
+
+  def initialize(self):
     self.num_pcs = 1
     self.num_npcs = 2
     self.pokemon = {('pc', i): Pokemon.random_pokemon() for i in range(self.num_pcs)}
