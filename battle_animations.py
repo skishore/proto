@@ -1,11 +1,11 @@
-text_speed = 8
+word_speed = 1
 
 
 class AnimateMenu(object):
-  def __init__(self, menu, speed=text_speed):
+  def __init__(self, menu, speed=word_speed):
     self.menu = menu
     self.speed = speed
-    self.length = sum(len(line) for line in menu)
+    self.length = len(' '.join(menu).split())
     self.index = 0
 
   def is_done(self):
@@ -18,8 +18,9 @@ class AnimateMenu(object):
     new_menu = []
     index = self.index
     for line in self.menu:
-      new_menu.append(line[:index])
-      index -= len(line)
+      words = line.split()
+      new_menu.append(' '.join(words[:index]))
+      index -= len(words)
       if index <= 0:
         break
     display['menu'] = new_menu
