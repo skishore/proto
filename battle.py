@@ -69,7 +69,6 @@ class Battle(object):
         return None
       new_i = i + randint(-1, 0)
       choice['target_id'] = (side, min(max(new_i, 0), num_targets - 1))
-      print 'Retargeting from %s to %s' % (to_remove, choice['target_id'])
     elif 'target_id' in choice:
       choice['target_id'] = self.shift_left(choice['target_id'], to_remove)
     return choice
