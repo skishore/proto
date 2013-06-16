@@ -82,10 +82,8 @@ class ChooseMove(BattleState):
         'move': pokemon.moves[self.move],
       })
       target_ids = self.choices[-1]['move'].get_target_ids(self.battle, self.user_id)
-      if len(target_ids) > 1:
-        return (ChooseTarget(self.battle, self.choices, target_ids), True)
       if target_ids:
-        self.choices[-1]['target_id'] = target_ids[0]
+        return (ChooseTarget(self.battle, self.choices, target_ids), True)
       return (NextChoice(self.battle, self.choices), True)
     return (self, self.move != old_move)
 
