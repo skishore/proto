@@ -1,3 +1,5 @@
+from random import randint
+
 from battle_state import Initialize
 from pokemon import Pokemon
 
@@ -54,11 +56,23 @@ class Battle(object):
     # and shift all other move indices.
     for index in sorted(choices.iterkeys()):
       choice = choices.pop(index)
+      retargeted_choice = self.retarget_choice(choice, to_remove)
       shifted_index = self.shift_left(index, to_remove)
-      if shifted_index and choice.get('target_id') != to_remove:
-        choices[shifted_index] = choice
-        if 'target_id' in choice:
-          choice['target_id'] = self.shift_left(choice['target_id'], to_remove)
+      if retargeted_choice and shifted_index:
+        choices[shifted_index] = retargeted_choice
+
+  def retarget_choice(self, choice, to_remove):
+    if choice.get('target_id') == to_remove:
+      (side, i) = to_remove
+      num_targets = self.num_pcs if side == 'pc' else self.num_npcs
+      if not num_targets:
+        return None
+      new_i = i + randint(-1, 0)
+      choice['target_id'] = (side, min(max(new_i, 0), num_targets - 1))
+      print 'Retargeting from %s to %s' % (to_remove, choice['target_id'])
+    elif 'target_id' in choice:
+      choice['target_id'] = self.shift_left(choice['target_id'], to_remove)
+    return choice
 
   @staticmethod
   def shift_left(index, to_remove):
