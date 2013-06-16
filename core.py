@@ -6,9 +6,10 @@ class Core(object):
   @staticmethod
   def execute(battle, choices):
     '''
-    Executes a single move and returns a (menus, callback) pair.
-    The menus are displayed, and when they are emptied, the callback is called.
-
+    Executes a move and returns a result dict, which may contain the following keys:
+      - animations: a list of animations to run.
+      - menu: a menu to display.
+      - callback: a callback to execute after the menus are cleared.
     This method may update the battle and the set of remaining choices.
     '''
     assert(choices)
@@ -45,7 +46,7 @@ class Callbacks(object):
     if damage < target.cur_hp:
       def update(battle, choices):
         target.cur_hp -= damage
-        return (['%s took %s damage.' % (battle.get_name(target_id), damage)], None)
+        return {'menu': ['%s took %s damage.' % (battle.get_name(target_id), damage)]}
       return update
     else:
       return Callbacks.faint(battle, target_id)
@@ -56,5 +57,5 @@ class Callbacks(object):
       if index in choices:
         del choices[index]
       battle.get_pokemon(index).cur_hp = 0
-      return (['%s fainted!' % (battle.get_name(index),)], None)
+      return {'menu': ['%s fainted!' % (battle.get_name(index),)]}
     return update

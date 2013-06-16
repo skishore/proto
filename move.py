@@ -33,7 +33,7 @@ class Move(object):
     menu = ['%s used %s!' % (battle.get_name(user_id), self.name)]
     damage = self.compute_damage(battle, user, target)
     callback = Callbacks.do_damage(battle, target_id, damage)
-    return (menu, callback)
+    return {'menu': menu, 'callback': callback}
 
   def compute_damage(self, battle, user, target):
     '''

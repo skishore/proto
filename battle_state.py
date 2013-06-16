@@ -156,15 +156,26 @@ class ExecuteTurn(BattleState):
     super(ExecuteTurn, self).__init__()
     self.battle = battle
     self.choices = choices
-    (self.menu, self.callback) = Core.execute(self.battle, self.choices)
+    self.execute_step(Core.execute)
     self.animations.append(AnimateMenu(self.menu))
+
+  def execute_step(self, executor):
+    '''
+    Executes an executor/callback method and resets the display and
+    internal state to account for it.
+    '''
+    result = executor(self.battle, self.choices)
+    self.animations.extend(result.get('animations', []))
+    self.menu = result.get('menu', [])
+    if self.menu:
+      self.animations.append(AnimateMenu(self.menu))
+    self.callback = result.get('callback')
 
   def handle_input(self, keys):
     old_menu = self.menu
     if pygame.K_d in keys:
       if self.callback:
-        (self.menu, self.callback) = self.callback(self.battle, self.choices)
-        self.animations.append(AnimateMenu(self.menu))
+        self.execute_step(self.callback)
         return (self, True)
       else:
         return (NextResult(self.battle, self.choices), True)
