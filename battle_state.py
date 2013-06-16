@@ -187,7 +187,7 @@ class ExecuteTurn(BattleState):
 
 
 def NextResult(battle, choices):
-  if not battle.num_pcs or not battle.num_pcs:
+  if not battle.num_pcs or not battle.num_npcs:
     return Finalize(battle)
   if choices:
     return ExecuteTurn(battle, choices)
