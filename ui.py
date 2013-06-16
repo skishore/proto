@@ -71,9 +71,10 @@ class BattleUI(object):
 
   def draw(self, surface, battle):
     surface.fill(white)
+    display = battle.get_display()
     self.draw_pc_pokemon(surface, battle.all_pcs())
     self.draw_npc_pokemon(surface, battle.all_npcs())
-    self.draw_menu(surface, battle.get_menu())
+    self.draw_menu(surface, display['menu'])
 
   def draw_pc_pokemon(self, surface, pc_pokemon):
     top = screen_size[1] - ui_height - self.user_sprite.height - status_height

@@ -1,6 +1,7 @@
 import pygame
 
 from ai import AI
+from battle_animations import AnimateMenu
 from core import Core
 
 
@@ -9,9 +10,15 @@ class BattleState(object):
     self.animations = []
 
   def transition(self, keys):
-    if any(not animation.is_done() for animation in self.animations):
+    old_num_animations = len(self.animations)
+    self.animations = [
+      animation for animation in self.animations
+      if not animation.is_done()
+    ]
+    if self.animations:
       return self.do_animations()
-    return self.handle_input(keys)
+    (state, redraw) = self.handle_input(keys)
+    return (state, redraw or (len(self.animations) != old_num_animations))
 
   def do_animations(self):
     for animation in self.animations:
@@ -24,7 +31,7 @@ class BattleState(object):
   def get_display(self):
     display = {'menu': self.get_menu()}
     for animation in self.animations:
-      animation.set_display(display)
+      animation.update_display(display)
     return display
 
 
@@ -53,6 +60,10 @@ class ChooseMove(BattleState):
     self.choices = choices or []
     self.user_id = ('pc', len(self.choices))
     self.move = 0
+    self.animations.append(AnimateMenu([self.base_text()]))
+
+  def base_text(self):
+    return 'What will %s do?' % (self.battle.get_name(self.user_id),)
 
   def handle_input(self, keys):
     pokemon = self.battle.get_pokemon(self.user_id)
@@ -80,7 +91,7 @@ class ChooseMove(BattleState):
 
   def get_menu(self):
     pokemon = self.battle.get_pokemon(self.user_id)
-    result = ['What will %s do?' % (pokemon.name,)]
+    result = [self.base_text()]
     for (i, move) in enumerate(pokemon.moves):
       cursor = '>' if i == self.move else ' '
       result.append(cursor + move.name)
@@ -107,6 +118,12 @@ class ChooseTarget(BattleState):
     self.choices = choices
     self.target_ids = target_ids
     self.target = 0
+    self.animations.append(AnimateMenu([self.base_text()]))
+
+  def base_text(self):
+    user = self.battle.get_pokemon(self.choices[-1]['user_id'])
+    move = self.choices[-1]['move']
+    return "Target for %s's %s:" % (user.name, move.name)
 
   def handle_input(self, keys):
     old_target = self.target
@@ -122,9 +139,7 @@ class ChooseTarget(BattleState):
     return (self, self.target != old_target)
 
   def get_menu(self):
-    user = self.battle.get_pokemon(self.choices[-1]['user_id'])
-    move = self.choices[-1]['move']
-    result = ["Target for %s's %s:" % (user.name, move.name), '']
+    result = [self.base_text(), '']
     for (i, target_id) in enumerate(self.target_ids):
       target = self.battle.get_pokemon(target_id)
       cursor = '>' if i == self.target else ' '
@@ -142,12 +157,14 @@ class ExecuteTurn(BattleState):
     self.battle = battle
     self.choices = choices
     (self.menu, self.callback) = Core.execute(self.battle, self.choices)
+    self.animations.append(AnimateMenu(self.menu))
 
   def handle_input(self, keys):
     old_menu = self.menu
     if pygame.K_d in keys:
       if self.callback:
         (self.menu, self.callback) = self.callback(self.battle, self.choices)
+        self.animations.append(AnimateMenu(self.menu))
         return (self, True)
       else:
         return (NextResult(self.battle, self.choices), True)

@@ -16,8 +16,8 @@ class Battle(object):
   def all_npcs(self):
     return [self.pokemon[('npc', i)] for i in range(self.num_npcs)]
 
-  def get_menu(self):
-    return self.state.get_menu()
+  def get_display(self):
+    return self.state.get_display()
 
   def get_name(self, index):
     pokemon = self.pokemon[tuple(index)]
