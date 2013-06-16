@@ -54,7 +54,10 @@ class Callbacks(object):
         ])
       return update
     else:
-      return Callbacks.faint(battle, target_id)
+      return lambda battle, choices: {
+        'animations': [FlashPokemon(target_id)],
+        'callback': Callbacks.faint(battle, target_id),
+      }
 
   @staticmethod
   def faint(battle, index):
