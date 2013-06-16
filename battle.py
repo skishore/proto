@@ -7,7 +7,7 @@ class Battle(object):
     self.initialize()
 
   def initialize(self):
-    self.num_pcs = 1
+    self.num_pcs = 2
     self.num_npcs = 2
     self.pokemon = {('pc', i): Pokemon.random_pokemon() for i in range(self.num_pcs)}
     self.pokemon.update({('npc', i): Pokemon.random_pokemon() for i in range(self.num_npcs)})
