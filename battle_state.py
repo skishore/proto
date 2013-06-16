@@ -165,9 +165,10 @@ class ExecuteTurn(BattleState):
     '''
     result = executor(self.battle, self.choices)
     self.animations.extend(result.get('animations', []))
-    self.menu = result.get('menu', [])
-    if self.menu:
-      self.animations.append(AnimateMenu(self.menu))
+    if not result.get('keep_old_menu'):
+      self.menu = result.get('menu', [])
+      if self.menu:
+        self.animations.append(AnimateMenu(self.menu))
     self.callback = result.get('callback')
 
   def handle_input(self, keys):

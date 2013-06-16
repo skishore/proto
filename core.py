@@ -1,7 +1,10 @@
 from collections import defaultdict
 from random import sample
 
-from battle_animations import FlashPokemon
+from battle_animations import (
+  FaintPokemon,
+  FlashPokemon,
+  )
 
 
 class Core(object):
@@ -60,10 +63,14 @@ class Callbacks(object):
   @staticmethod
   def faint(battle, index):
     def update(battle, choices):
-      if index in choices:
-        del choices[index]
-      battle.get_pokemon(index).cur_hp = 0
-      return {'menu': ['%s fainted!' % (battle.get_name(index),)]}
+      menu = ['%s fainted!' % (battle.get_name(index),)]
+      return {
+        'menu': menu,
+        'callback': lambda battle, choices: {
+          'animations': [FaintPokemon(index, menu=menu)],
+          'callback': None, #lambda battle, choices: battle.remove_pokemon(index, choices),
+        },
+      }
     return update
 
   @staticmethod

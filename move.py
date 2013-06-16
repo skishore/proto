@@ -40,7 +40,7 @@ class Move(object):
     Returns the amount of damage done if user uses this move on target.
     '''
     # A placeholder implementation of a damaging, single-target move.
-    return self.power/4
+    return self.power
 
   @staticmethod
   def random_moves(num_moves):

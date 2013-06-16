@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 import math
 import pygame
 
@@ -97,7 +98,8 @@ class BattleUI(object):
     sprite.set_position(left, top)
     sprite.set_pokenum(pokemon.num)
     if draw_sprites and index not in display.get('hidden_indices', ()):
-      sprite.draw(surface)
+      with self.apply_sprite_offsets(sprite, index, display):
+        sprite.draw(surface)
     # Draw the Pokemon's name.
     name = pokemon.name
     left = far_left + (name_size - font_size*len(name))/2
@@ -112,6 +114,16 @@ class BattleUI(object):
     top += font_size/2
     health = float(pokemon.cur_hp)/pokemon.max_hp
     self.draw_health_bar(surface, health, left, top)
+
+  @contextmanager
+  def apply_sprite_offsets(self, sprite, index, display):
+    height_offset = display.get('height_offsets', {}).get(index, 0)
+    absolute_offset = int(math.ceil(height_offset*sprite.height))
+    sprite.rect.top += absolute_offset
+    sprite.source_rect.height -= absolute_offset
+    yield
+    sprite.rect.top -= absolute_offset
+    sprite.source_rect.height += absolute_offset
 
   def draw_health_bar(self, surface, health, left, top):
     # Draw the left and right borders of the health bar.
