@@ -164,18 +164,20 @@ class ExecuteTurn(BattleState):
     internal state to account for it.
     '''
     result = executor(self.battle, self.choices)
+    if not result:
+      return (NextResult(self.battle, self.choices), True)
     self.animations.extend(result.get('animations', []))
     if not result.get('keep_old_menu'):
       self.menu = result.get('menu', [])
       if self.menu:
         self.animations.append(AnimateMenu(self.menu))
     self.callback = result.get('callback')
+    return (self, True)
 
   def handle_input(self, keys):
     if pygame.K_d in keys or not self.menu:
       if self.callback:
-        self.execute_step(self.callback)
-        return (self, True)
+        return self.execute_step(self.callback)
       else:
         return (NextResult(self.battle, self.choices), True)
     return (self, False)

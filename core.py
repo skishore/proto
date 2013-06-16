@@ -68,7 +68,7 @@ class Callbacks(object):
         'menu': menu,
         'callback': lambda battle, choices: {
           'animations': [FaintPokemon(index, menu=menu)],
-          'callback': None, #lambda battle, choices: battle.remove_pokemon(index, choices),
+          'callback': (lambda battle, choices: battle.remove_pokemon(index, choices)),
         },
       }
     return update
