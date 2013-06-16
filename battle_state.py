@@ -187,6 +187,23 @@ class ExecuteTurn(BattleState):
 
 
 def NextResult(battle, choices):
+  if not battle.num_pcs or not battle.num_pcs:
+    return Finalize(battle)
   if choices:
     return ExecuteTurn(battle, choices)
   return ChooseMove(battle)
+
+
+class Finalize(BattleState):
+  def __init__(self, battle):
+    super(Finalize, self).__init__()
+    assert(not battle.num_pcs or not battle.num_npcs)
+    self.battle = battle
+    self.menu = ['You won the battle!'] if battle.num_pcs else ['You lost...']
+    self.animations.append(AnimateMenu(self.menu))
+
+  def handle_input(self, keys):
+    return (self, False)
+
+  def get_menu(self):
+    return self.menu
