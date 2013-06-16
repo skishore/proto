@@ -44,20 +44,18 @@ class Callbacks(object):
   '''
   @staticmethod
   def do_damage(battle, target_id, damage):
-    target = battle.get_pokemon(target_id)
-    if damage < target.cur_hp:
-      def update(battle, choices):
-        target.cur_hp -= damage
-        return Callbacks.chain([
-          {'animations': [FlashPokemon(target_id)]},
+    def update(battle, choices):
+      target = battle.get_pokemon(target_id)
+      target.cur_hp = max(target.cur_hp - damage, 0)
+      result = {'animations': [FlashPokemon(target_id)]}
+      if target.cur_hp:
+        result['callback'] = Callbacks.chain(
           {'menu': ['%s took %s damage.' % (battle.get_name(target_id), damage)]},
-        ])
-      return update
-    else:
-      return lambda battle, choices: {
-        'animations': [FlashPokemon(target_id)],
-        'callback': Callbacks.faint(battle, target_id),
-      }
+        )
+      else:
+        result['callback'] = Callbacks.faint(battle, target_id)
+      return result
+    return update
 
   @staticmethod
   def faint(battle, index):
@@ -69,9 +67,8 @@ class Callbacks(object):
     return update
 
   @staticmethod
-  def chain(displays):
-    display = displays[0]
-    if len(displays) == 1:
-      return lambda battle, choices: display
-    display['callback'] = Callbacks.chain(displays[1:])
-    return display
+  def chain(display, *rest):
+    if rest:
+      assert('callback' not in display)
+      display['callback'] = Callbacks.chain(*rest)
+    return lambda battle, choices: display
