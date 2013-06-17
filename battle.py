@@ -52,16 +52,23 @@ class Battle(object):
       self.num_pcs -= 1
     else:
       self.num_npcs -= 1
-    # Delete moves for a) the Pokemon and b) the Pokemon that targeted it,
-    # and shift all other move indices.
+    # Update the current choices and the last recorded choices dicts.
+    self.update_choices(choices, to_remove)
+
+  def update_choices(self, choices, to_remove):
+    '''
+    Modify the a choices dictionary to account for a removed Pokemon:
+      - Delete moves that the Pokemon used from the dictionary.
+      - Shift and retarget other moves in the dict.
+    '''
     for index in sorted(choices.iterkeys()):
       choice = choices.pop(index)
-      retargeted_choice = self.retarget_choice(choice, to_remove)
+      updated_choice = self.update_choice(choice, to_remove)
       shifted_index = self.shift_left(index, to_remove)
-      if retargeted_choice and shifted_index:
-        choices[shifted_index] = retargeted_choice
+      if updated_choice and shifted_index:
+        choices[shifted_index] = updated_choice
 
-  def retarget_choice(self, choice, to_remove):
+  def update_choice(self, choice, to_remove):
     if choice.get('target_id') == to_remove:
       (side, i) = to_remove
       num_targets = self.num_pcs if side == 'pc' else self.num_npcs
