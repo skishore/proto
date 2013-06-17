@@ -1,7 +1,14 @@
-from random import sample
+import operator
+from random import (
+  sample,
+  uniform,
+  )
 
 from core import Callbacks
-from data import move_data
+from data import (
+  move_data,
+  type_effectiveness,
+  )
 
 
 class Move(object):
@@ -39,8 +46,13 @@ class Move(object):
     '''
     Returns the amount of damage done if user uses this move on target.
     '''
-    # A placeholder implementation of a damaging, single-target move.
-    return self.power
+    level = float(2*user.lvl() + 10)/250
+    stats = float(user.atk)/target.dfn
+    stab = 1.5 if self.type in user.types else 1
+    types = (type_effectiveness[self.type][type] for type in target.types)
+    type_multiplier = reduce(operator.mul, types, 1)
+    randomness = uniform(0.85, 1)
+    return int((level*stats*self.power + 2)*stab*type_multiplier*randomness)
 
   @staticmethod
   def random_moves(num_moves):
