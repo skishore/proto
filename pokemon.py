@@ -14,6 +14,7 @@ class Pokemon(object):
     self.num = num
     self.level = level
     self.name = pokedex_data[num]['name']
+    self.types = pokedex_data[num]['types']
     self.compute_stats()
 
   def compute_stats(self):
