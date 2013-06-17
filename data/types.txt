@@ -1,0 +1,37 @@
+There are 17 types:
+NORMAL
+FIRE
+WATER
+ELECTRIC
+GRASS
+ICE
+FIGHTING
+POISON
+GROUND
+FLYING
+PSYCHIC
+BUG
+ROCK
+GHOST
+DRAGON
+DARK
+STEEL
+
+Type effectives chart:
+            ½0  ½
+ ½½ 22     2½ ½ 2
+ 2½ ½   2   2 ½  
+  2½½   02    ½  
+ ½2 ½  ½2½ ½2 ½ ½
+ ½½ 2½  22    2 ½
+2    2 ½ ½½½20 22
+    2  ½½   ½½  0
+ 2 2½  2 0 ½2   2
+   ½2 2    2½   ½
+      22  ½    0½
+ ½  2 ½½ ½2  ½ 2½
+ 2   2½ ½2 2    ½
+0         2  2 ½½
+              2 ½
+      ½   2  2 ½½
+ ½½½ 2      2   ½
