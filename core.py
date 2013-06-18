@@ -46,24 +46,27 @@ class Callbacks(object):
   These updates are functions with the same signature as Core.execute.
   '''
   @staticmethod
-  def do_damage(battle, target_id, damage):
+  def do_damage(battle, target_id, damage, message=None):
     def update(battle, choices):
       target = battle.get_pokemon(target_id)
       target.cur_hp = max(target.cur_hp - damage, 0)
       result = {'animations': [FlashPokemon(target_id)]}
       if target.cur_hp:
-        result['callback'] = Callbacks.chain(
-          {'menu': ['%s took %s damage.' % (battle.get_name(target_id), damage)]},
-        )
+        menu = ['%s took %s damage.' % (battle.get_name(target_id), damage)]
+        if message:
+          menu = [message, ''] + menu
+        result['callback'] = Callbacks.chain({'menu': menu})
       else:
-        result['callback'] = Callbacks.faint(battle, target_id)
+        result['callback'] = Callbacks.faint(battle, target_id, message)
       return result
     return update
 
   @staticmethod
-  def faint(battle, index):
+  def faint(battle, index, message=None):
     def update(battle, choices):
       menu = ['%s fainted!' % (battle.get_name(index),)]
+      if message:
+        menu = [message, ''] + menu
       return {
         'menu': menu,
         'callback': lambda battle, choices: {

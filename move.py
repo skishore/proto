@@ -38,8 +38,13 @@ class Move(object):
     user = battle.get_pokemon(user_id)
     target = battle.get_pokemon(target_id)
     menu = ['%s used %s!' % (battle.get_name(user_id), self.name)]
-    damage = self.compute_damage(battle, user, target)
-    callback = Callbacks.do_damage(battle, target_id, damage)
+    if self.get_type_advantage(target):
+      damage = self.compute_damage(battle, user, target)
+      message = self.get_message(battle, user, target)
+      callback = Callbacks.do_damage(battle, target_id, damage, message)
+    else:
+      result = ["It didn't affect %s!" % (battle.get_name(target_id),)]
+      callback = Callbacks.chain({'menu': result})
     return {'menu': menu, 'callback': callback}
 
   def compute_damage(self, battle, user, target):
@@ -49,10 +54,21 @@ class Move(object):
     level = float(2*user.lvl() + 10)/250
     stats = float(user.atk)/target.dfn
     stab = 1.5 if self.type in user.types else 1
-    types = (type_effectiveness[self.type][type] for type in target.types)
-    type_multiplier = reduce(operator.mul, types, 1)
+    type_advantage = self.get_type_advantage(target)
     randomness = uniform(0.85, 1)
-    return int((level*stats*self.power + 2)*stab*type_multiplier*randomness)
+    return int((level*stats*self.power + 2)*stab*type_advantage*randomness)
+
+  def get_message(self, battle, user, target):
+    type_advantage = self.get_type_advantage(target)
+    if type_advantage < 1:
+      return "It's not very effective..."
+    elif type_advantage > 1:
+      return "It's super effective!"
+    return None
+
+  def get_type_advantage(self, target):
+    factors = (type_effectiveness[self.type][type] for type in target.types)
+    return reduce(operator.mul, factors, 1)
 
   @staticmethod
   def random_moves(num_moves):
