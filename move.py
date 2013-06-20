@@ -2,13 +2,14 @@ import operator
 from random import (
   sample,
   uniform,
-  )
+)
 
 from core import Callbacks
 from data import (
   move_data,
   type_effectiveness,
-  )
+  physical_types,
+)
 
 
 class Move(object):
@@ -52,11 +53,14 @@ class Move(object):
     Returns the amount of damage done if user uses this move on target.
     '''
     level = float(2*user.lvl() + 10)/250
-    stats = float(user.atk)/target.dfn
+    stat_ratio = (
+      float(user.atk)/target.dfn if self.type in physical_types else
+      float(user.spa)/target.spd
+    )
     stab = 1.5 if self.type in user.types else 1
     type_advantage = self.get_type_advantage(target)
     randomness = uniform(0.85, 1)
-    return int((level*stats*self.power + 2)*stab*type_advantage*randomness)
+    return int((level*stat_ratio*self.power + 2)*stab*type_advantage*randomness)
 
   def get_message(self, battle, user, target):
     type_advantage = self.get_type_advantage(target)
