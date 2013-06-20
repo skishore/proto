@@ -19,7 +19,12 @@ class BattleState(object):
     if self.animations:
       return self.do_animations()
     (state, redraw) = self.handle_input(keys)
+    if redraw:
+      self.save_state(self.battle.soft_state)
     return (state, redraw or (len(self.animations) != old_num_animations))
+
+  def save_state(self, soft_state):
+    pass
 
   def do_animations(self):
     for animation in self.animations:
@@ -60,26 +65,40 @@ class ChooseMove(BattleState):
     self.battle = battle
     self.choices = choices or []
     self.user_id = ('pc', len(self.choices))
+    self.user = self.battle.get_pokemon(self.user_id)
     self.move = 0
     self.animations.append(AnimateMenu([self.base_text()]))
+    self.restore_state(self.battle.soft_state)
+
+  def save_state(self, soft_state):
+    key = ('choose_move', self.user.sess_id)
+    stored_state = (self.move, self.user.moves[self.move].name)
+    if soft_state.get(key) != stored_state:
+      soft_state[key] = stored_state
+      soft_state.pop(('choose_target', self.user.sess_id), None)
+
+  def restore_state(self, soft_state):
+    key = ('choose_move', self.user.sess_id)
+    (move, name) = soft_state.get(key, (0, self.user.moves[0].name))
+    if move <= len(self.user.moves) and self.user.moves[move].name == name:
+      self.move = move
 
   def base_text(self):
     return 'What will %s do?' % (self.battle.get_name(self.user_id),)
 
   def handle_input(self, keys):
     old_move = self.move
-    pokemon = self.battle.get_pokemon(self.user_id)
     if pygame.K_UP in keys:
       self.move = max(self.move - 1, 0)
     if pygame.K_DOWN in keys:
-      self.move = min(self.move + 1, len(pokemon.moves) - 1)
+      self.move = min(self.move + 1, len(self.user.moves) - 1)
     if pygame.K_s in keys and self.choices:
       return (ChooseMove(self.battle, self.choices[:-1]), True)
     if pygame.K_d in keys:
       self.choices.append({
         'type': 'move',
         'user_id': self.user_id,
-        'move': pokemon.moves[self.move],
+        'move': self.user.moves[self.move],
       })
       target_ids = self.choices[-1]['move'].get_target_ids(self.battle, self.user_id)
       if target_ids:
@@ -88,9 +107,8 @@ class ChooseMove(BattleState):
     return (self, self.move != old_move)
 
   def get_menu(self):
-    pokemon = self.battle.get_pokemon(self.user_id)
     result = [self.base_text()]
-    for (i, move) in enumerate(pokemon.moves):
+    for (i, move) in enumerate(self.user.moves):
       cursor = '>' if i == self.move else ' '
       result.append(cursor + move.name)
     return result
@@ -114,14 +132,27 @@ class ChooseTarget(BattleState):
     super(ChooseTarget, self).__init__()
     self.battle = battle
     self.choices = choices
+    self.user = self.battle.get_pokemon(self.choices[-1]['user_id'])
+    self.move = self.choices[-1]['move']
     self.target_ids = target_ids
     self.target = 0
     self.animations.append(AnimateMenu([self.base_text()]))
+    self.restore_state(self.battle.soft_state)
+
+  def save_state(self, soft_state):
+    key = ('choose_target', self.user.sess_id)
+    target = self.battle.get_pokemon(self.target_ids[self.target])
+    soft_state[key] = target.sess_id
+
+  def restore_state(self, soft_state):
+    key = ('choose_target', self.user.sess_id)
+    target_sess_id = soft_state.get(key, -1)
+    for (i, target_id) in enumerate(self.target_ids):
+      if self.battle.get_pokemon(target_id).sess_id == target_sess_id:
+        self.target = i
 
   def base_text(self):
-    user = self.battle.get_pokemon(self.choices[-1]['user_id'])
-    move = self.choices[-1]['move']
-    return "Target for %s's %s:" % (user.name, move.name)
+    return "Target for %s's %s:" % (self.user.name, self.move.name)
 
   def handle_input(self, keys):
     old_target = self.target

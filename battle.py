@@ -9,11 +9,16 @@ class Battle(object):
     self.initialize()
 
   def initialize(self):
+    self.sessions = 0
     self.num_pcs = 2
     self.num_npcs = 2
-    self.pokemon = {('pc', i): Pokemon.random_pokemon() for i in range(self.num_pcs)}
-    self.pokemon.update({('npc', i): Pokemon.random_pokemon() for i in range(self.num_npcs)})
+    self.pokemon = {}
+    for index in [('pc', i) for i in range(self.num_pcs)]:
+      self.add_pokemon(index, Pokemon.random_pokemon())
+    for index in [('npc', i) for i in range(self.num_npcs)]:
+      self.add_pokemon(index, Pokemon.random_pokemon())
     self.state = Initialize(self)
+    self.soft_state = {}
 
   def all_pcs(self):
     return [self.pokemon[('pc', i)] for i in range(self.num_pcs)]
@@ -30,6 +35,11 @@ class Battle(object):
 
   def get_pokemon(self, index):
     return self.pokemon[tuple(index)]
+
+  def add_pokemon(self, index, pokemon):
+    pokemon.sess_id = self.sessions
+    self.sessions += 1
+    self.pokemon[index] = pokemon
 
   def remove_pokemon(self, to_remove, choices):
     '''
