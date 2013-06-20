@@ -7,19 +7,19 @@ with open('data/types.txt', 'r') as types_txt:
 lines = raw_type_data.split('\n')
 assert(len(lines) == 2*num_types + 4)
 
-types = set()
-physical_types = set()
-special_types = set()
+types = ()
+physical_types = ()
+special_types = ()
 
 for line in lines[1:num_types + 1]:
   (type, ph_or_sp) = line.split()
   assert(type.isalpha() and type == type.upper())
-  types.add(type)
+  types += (type,)
   assert(ph_or_sp in ('ph', 'sp'))
   if ph_or_sp == 'ph':
-    physical_types.add(type)
+    physical_types += (type,)
   else:
-    special_types.add(type)
+    special_types += (type,)
 assert(len(types) == num_types)
 
 def parse_effectiveness(char):
