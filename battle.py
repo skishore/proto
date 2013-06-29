@@ -15,9 +15,9 @@ class Battle(object):
     self.num_npcs = 1
     self.pokemon = {}
     for index in [('pc', i) for i in range(self.num_pcs)]:
-      self.add_pokemon(index, Pokemon.random_pokemon())
+      self.add_pokemon(index, Pokemon.random_pokemon('pc'))
     for index in [('npc', i) for i in range(self.num_npcs)]:
-      self.add_pokemon(index, Pokemon.random_pokemon())
+      self.add_pokemon(index, Pokemon.random_pokemon('npc'))
     self.state = Initialize(self)
     self.soft_state = {}
     self.ui = BattleUI()

@@ -38,9 +38,11 @@ class Pokemon(object):
     return level_multiplier*self.level
 
   @staticmethod
-  def random_pokemon():
+  def random_pokemon(side):
     pokemon = Pokemon(randint(1, num_pokemon), randint(1, 2))
-    #num_moves = 1
-    #pokemon.moves = Move.random_moves(num_moves)
-    pokemon.moves = [Move(3)]
+    if side == 'pc':
+      pokemon.moves = Move.latest_moves(4)
+    else:
+      num_moves = randint(2, 3)
+      pokemon.moves = Move.random_moves(num_moves)
     return pokemon

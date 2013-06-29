@@ -125,5 +125,10 @@ class Move(object):
     return uniform(0, 100) < self.accuracy
 
   @staticmethod
+  def latest_moves(num_moves=4):
+    move_numbers = sorted(move_data.iterkeys(), reverse=True)
+    return [Move(num) for num in move_numbers[:num_moves]]
+
+  @staticmethod
   def random_moves(num_moves):
     return [Move(num) for num in sample(Move.moves, num_moves)]
