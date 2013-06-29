@@ -38,6 +38,12 @@ class Pokemon(object):
   def lvl(self):
     return level_multiplier*self.level
 
+  def stat(self, stat):
+    value = getattr(self, stat)
+    if stat == 'atk' and self.status == 'burn':
+      return value/2
+    return value
+
   @staticmethod
   def random_pokemon(side):
     pokemon = Pokemon(randint(1, num_pokemon), randint(1, 2))

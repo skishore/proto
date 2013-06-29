@@ -98,8 +98,8 @@ class Move(object):
     lvl_multiplier = 4 if crit else 2
     level = float(lvl_multiplier*user.lvl() + 10)/250
     stat_ratio = (
-      float(user.atk)/target.dfn if self.type in physical_types else
-      float(user.spa)/target.spd
+      float(user.stat('atk'))/target.stat('dfn') if self.type in physical_types else
+      float(user.stat('spa'))/target.stat('spd')
     )
     stab = 1.5 if self.type in user.types else 1
     type_advantage = self.get_type_advantage(target)
