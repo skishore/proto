@@ -1,3 +1,5 @@
+import json
+
 #------ Parse the type data from types.txt. -------#
 
 num_types = 17
@@ -82,7 +84,11 @@ move_data = {}
 with open('data/moves.txt', 'r') as moves_txt:
   raw_move_data = moves_txt.read()
 
-for line in raw_move_data.split('\r\n')[1:-1]:
+for line in raw_move_data.split('\r\n'):
+  if line.startswith('#'):
+    if 'STOP' in line:
+      break
+    continue
   row = line.split(',')
   assert(row[5] in types), 'Unexpected type: %s' % (row[5],)
   move_data[int(row[0])] = {
@@ -91,4 +97,7 @@ for line in raw_move_data.split('\r\n')[1:-1]:
     'power': int(row[3]),
     'pp': int(row[4]),
     'type': row[5],
+    'extra': json.loads(','.join(row[6:])) if len(row) > 6 else {}
   }
+else:
+  assert(False), 'Could not find STOP line.'

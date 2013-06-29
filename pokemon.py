@@ -41,5 +41,6 @@ class Pokemon(object):
   def random_pokemon():
     pokemon = Pokemon(randint(1, num_pokemon), randint(1, 2))
     num_moves = randint(3, 4)
+    num_moves = 1
     pokemon.moves = Move.random_moves(num_moves)
     return pokemon
