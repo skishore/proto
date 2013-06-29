@@ -170,6 +170,17 @@ class BattleUI(object):
       ui_height,
     ), 1)
     top = screen_size[1] - ui_height + font_size
-    for line in lines:
+    for line in self.resize_lines(lines, width):
       self.font.draw(surface, line, left + font_size, top)
       top += 3*font_size/2
+
+  def resize_lines(self, lines, width):
+    num_chars = width/font_size - 2
+    new_lines = ['']
+    for line in lines:
+      for word in line.split(' '):
+        if len(new_lines[-1]) + len(word) > num_chars:
+          new_lines.append('')
+        new_lines[-1] += word + ' '
+      new_lines.append('')
+    return [line.rstrip() for line in new_lines]

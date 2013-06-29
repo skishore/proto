@@ -132,7 +132,7 @@ class Status(object):
   @staticmethod
   def apply_burn(battle, index, pokemon, callback):
     damage = pokemon.max_hp/8
-    special = '\nfrom the burn'
+    special = ' from the burn'
     return Callbacks.do_damage(battle, index, damage, '', callback=callback, special=special)
 
   @staticmethod
