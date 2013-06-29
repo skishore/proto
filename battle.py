@@ -11,8 +11,8 @@ class Battle(object):
 
   def initialize(self):
     self.sessions = 0
-    self.num_pcs = 2
-    self.num_npcs = 2
+    self.num_pcs = 1
+    self.num_npcs = 1
     self.pokemon = {}
     for index in [('pc', i) for i in range(self.num_pcs)]:
       self.add_pokemon(index, Pokemon.random_pokemon())
