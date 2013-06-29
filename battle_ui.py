@@ -2,13 +2,14 @@ from contextlib import contextmanager
 import math
 import pygame
 
+from base import screen_size
 from data import get_front_index
 from font import Font
 from sprite import Sprite
 
+
 draw_sprites = True
 
-screen_size = (360, 270)
 back_size = 50
 front_size = 56
 

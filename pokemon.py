@@ -3,6 +3,7 @@ from random import randint
 from data import pokedex_data
 from move import Move
 
+
 level_multiplier = 10
 num_pokemon = 251
 

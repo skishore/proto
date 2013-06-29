@@ -4,7 +4,7 @@ from random import sample
 from battle_animations import (
   FaintPokemon,
   FlashPokemon,
-  )
+)
 
 
 class Core(object):

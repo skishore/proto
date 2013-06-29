@@ -2,12 +2,10 @@ import pygame
 import sys
 import time
 
+from base import screen_size
 from battle import Battle
 from key_repeater import KeyRepeater
-from ui import (
-  BattleUI,
-  screen_size,
-)
+
 
 framerate = 24
 delay = 1.0/framerate
@@ -18,7 +16,6 @@ class TestGame(object):
     self.screen = pygame.display.set_mode(screen_size)
     self.key_repeater = self.construct_key_repeater()
     self.battle = Battle()
-    self.ui = BattleUI()
 
   @staticmethod
   def construct_key_repeater():
@@ -55,7 +52,7 @@ class TestGame(object):
     return self.battle.transition(keys)
 
   def draw(self):
-    self.ui.draw(self.screen, self.battle)
+    self.battle.draw(self.screen)
     pygame.display.flip()
 
 if __name__ == '__main__':

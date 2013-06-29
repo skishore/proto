@@ -1,6 +1,7 @@
 from random import randint
 
 from battle_state import Initialize
+from battle_ui import BattleUI
 from pokemon import Pokemon
 
 
@@ -19,6 +20,7 @@ class Battle(object):
       self.add_pokemon(index, Pokemon.random_pokemon())
     self.state = Initialize(self)
     self.soft_state = {}
+    self.ui = BattleUI()
 
   def all_pcs(self):
     return [self.pokemon[('pc', i)] for i in range(self.num_pcs)]
@@ -105,3 +107,6 @@ class Battle(object):
     '''
     (self.state, result) = self.state.transition(keys)
     return result
+
+  def draw(self, screen):
+    self.ui.draw(screen, self)
