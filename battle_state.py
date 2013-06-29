@@ -192,6 +192,8 @@ class ExecuteTurn(BattleState):
     Executes an executor/callback method and resets the display and
     internal state to account for it.
     '''
+    if not self.battle.num_pcs or not self.battle.num_npcs:
+      return (Finalize(self.battle), True)
     result = executor(self.battle, self.choices)
     if not result:
       assert(not main), 'The main executor must return a callback'
