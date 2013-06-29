@@ -194,7 +194,8 @@ class ExecuteTurn(BattleState):
     '''
     result = executor(self.battle, self.choices)
     if not result:
-      return (NextResult(self.battle, self.choices), True)
+      assert(not main), 'The main executor must return a callback'
+      return self.execute_last_step()
     self.animations.extend(result.get('animations', []))
     if not result.get('keep_old_menu'):
       self.menu = result.get('menu', [])
@@ -205,16 +206,18 @@ class ExecuteTurn(BattleState):
       self.last_callback = result.get('last_callback')
     return (self, True)
 
+  def execute_last_step(self):
+    if self.last_callback:
+      last_callback = self.last_callback
+      self.last_callback = None
+      return self.execute_step(last_callback)
+    return (NextResult(self.battle, self.choices), True)
+
   def handle_input(self, keys):
     if pygame.K_d in keys or not self.menu:
       if self.callback:
         return self.execute_step(self.callback)
-      elif self.last_callback:
-        result = self.execute_step(self.last_callback)
-        self.last_callback = None
-        return result
-      else:
-        return (NextResult(self.battle, self.choices), True)
+      return self.execute_last_step()
     return (self, False)
 
   def get_menu(self):
