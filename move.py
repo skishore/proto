@@ -39,12 +39,16 @@ class Move(object):
     user = battle.get_pokemon(user_id)
     target = battle.get_pokemon(target_id)
     menu = ['%s used %s!' % (battle.get_name(user_id), self.name)]
-    if self.get_type_advantage(target):
-      damage = self.compute_damage(battle, user, target)
-      message = self.get_message(battle, user, target)
-      callback = Callbacks.do_damage(battle, target_id, damage, message)
+    if self.hits(battle, user, target):
+      if self.get_type_advantage(target):
+        damage = self.compute_damage(battle, user, target)
+        message = self.get_message(battle, user, target)
+        callback = Callbacks.do_damage(battle, target_id, damage, message)
+      else:
+        result = ["It didn't affect %s!" % (battle.get_name(target_id, lower=True),)]
+        callback = Callbacks.chain({'menu': result})
     else:
-      result = ["It didn't affect %s!" % (battle.get_name(target_id),)]
+      result = ['It missed %s!' % (battle.get_name(target_id, lower=True),)]
       callback = Callbacks.chain({'menu': result})
     return {'menu': menu, 'callback': callback}
 
@@ -73,6 +77,9 @@ class Move(object):
   def get_type_advantage(self, target):
     factors = (type_effectiveness[self.type][type] for type in target.types)
     return reduce(operator.mul, factors, 1)
+
+  def hits(self, battle, user, target):
+    return uniform(0, 100) < self.accuracy
 
   @staticmethod
   def random_moves(num_moves):

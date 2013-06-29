@@ -31,9 +31,12 @@ class Battle(object):
   def get_display(self):
     return self.state.get_display()
 
-  def get_name(self, index):
+  def get_name(self, index, lower=False):
     pokemon = self.pokemon[tuple(index)]
-    return '%s%s' % ('Enemy ' if index[0] == 'npc' else '', pokemon.name)
+    return '%s%s' % (
+      ('enemy ' if lower else 'Enemy ') if index[0] == 'npc' else '',
+      pokemon.name
+    )
 
   def get_pokemon(self, index):
     return self.pokemon[tuple(index)]
