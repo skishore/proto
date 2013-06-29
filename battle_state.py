@@ -185,9 +185,9 @@ class ExecuteTurn(BattleState):
     super(ExecuteTurn, self).__init__()
     self.battle = battle
     self.choices = choices
-    self.execute_step(Core.execute)
+    self.execute_step(Core.execute, main=True)
 
-  def execute_step(self, executor):
+  def execute_step(self, executor, main=False):
     '''
     Executes an executor/callback method and resets the display and
     internal state to account for it.
@@ -201,12 +201,18 @@ class ExecuteTurn(BattleState):
       if self.menu:
         self.animations.append(AnimateMenu(self.menu))
     self.callback = result.get('callback')
+    if main:
+      self.last_callback = result.get('last_callback')
     return (self, True)
 
   def handle_input(self, keys):
     if pygame.K_d in keys or not self.menu:
       if self.callback:
         return self.execute_step(self.callback)
+      elif self.last_callback:
+        result = self.execute_step(self.last_callback)
+        self.last_callback = None
+        return result
       else:
         return (NextResult(self.battle, self.choices), True)
     return (self, False)

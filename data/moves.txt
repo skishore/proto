@@ -7,7 +7,7 @@
 4,Comet Punch,85,18,15,NORMAL,{"move_type": "multihit"}
 5,Mega Punch,85,80,20,NORMAL
 #6,Pay Day,100,40,20,NORMAL
-#7,Fire Punch,100,75,15,FIRE
+7,Fire Punch,100,75,15,FIRE,{"burn_rate": 0.10}
 #8,Ice Punch,100,75,15,ICE
 #9,Thunder Punch,100,75,15,ELECTRIC
 10,Scratch,100,40,35,NORMAL
