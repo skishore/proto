@@ -50,7 +50,7 @@ class Core(object):
           break
       else:
         return
-      return Status.apply_updates(battle, choices, index, pokemon)
+      return Status.apply_update(battle, choices, index, pokemon)
     return update
 
 
@@ -100,43 +100,45 @@ class Callbacks(object):
   @staticmethod
   def apply_status(battle, target_id, status, callback=None):
     def update(battle, choices):
-      menu = ['%s was %s!' % (battle.get_name(target_id), Status.verbs[status])]
+      menu = ['%s %s!' % (battle.get_name(target_id), Status.verbs[status])]
       def inner_update(battle, choices):
-        battle.get_pokemon(target_id).statuses.add(status)
+        battle.get_pokemon(target_id).status = status
         return {'callback': callback}
       return {'menu': menu, 'callback': inner_update}
     return update
 
 
 class Status(object):
-  priorities = {
-    'burn': 0,
-    'poison': 1,
+  letters = {
+    'burn': 'B',
+    'poison': 'P',
+    'paralyze': 'R',
+    'freeze': 'F',
+    'sleep': 'S',
   }
   verbs = {
-    'burn': 'burned',
-    'poison': 'poisoned',
+    'burn': 'was burned',
+    'poison': 'was poisoned',
+    'paralyze': 'was paralyzed',
+    'freeze': 'was frozen solid',
+    'sleep': 'fell asleep',
   }
 
   @staticmethod
-  def apply_updates(battle, choices, index, pokemon):
-    callback = None
-    pokemon = battle.get_pokemon(index)
-    statuses = sorted(pokemon.statuses, key=lambda status: Status.priorities[status])
-    for status in statuses:
-      callback = getattr(Status, 'apply_' + status)(battle, index, pokemon, callback)
-    if callback:
+  def apply_update(battle, choices, index, pokemon):
+    if pokemon.status:
+      callback = getattr(Status, 'apply_' + pokemon.status)(battle, index, pokemon)
       return callback(battle, choices)
     return None
 
   @staticmethod
-  def apply_burn(battle, index, pokemon, callback):
+  def apply_burn(battle, index, pokemon):
     damage = pokemon.max_hp/8
     special = ' from the burn'
-    return Callbacks.do_damage(battle, index, damage, '', callback=callback, special=special)
+    return Callbacks.do_damage(battle, index, damage, '', special=special)
 
   @staticmethod
-  def apply_poison(battle, index, pokemon, callback):
+  def apply_poison(battle, index, pokemon):
     damage = pokemon.max_hp/8
     special = ' from poison'
-    return Callbacks.do_damage(battle, index, damage, '', callback=callback, special=special)
+    return Callbacks.do_damage(battle, index, damage, '', special=special)

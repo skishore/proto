@@ -3,6 +3,7 @@ import math
 import pygame
 
 from base import screen_size
+from core import Status
 from data import get_front_index
 from font import Font
 from sprite import Sprite
@@ -101,6 +102,9 @@ class BattleUI(object):
     if draw_sprites and index not in display.get('hidden_indices', ()):
       with self.apply_sprite_offsets(sprite, index, display):
         sprite.draw(surface)
+      if pokemon.status:
+        char = Status.letters[pokemon.status]
+        self.font.draw(surface, char, left - font_size - 3, top + font_size/2)
     # Draw the Pokemon's name.
     name = pokemon.name
     left = far_left + (name_size - font_size*len(name))/2

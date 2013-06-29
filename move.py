@@ -129,11 +129,12 @@ class Move(object):
     return uniform(0, 100) < self.accuracy
 
   def get_status_callback(self, battle, target_id, target, callback):
-    for status in Status.priorities:
+    if target.status:
+      return
+    for status in Status.verbs:
       rate = self.extra.get(status + '_rate')
-      if rate and status not in target.statuses:
-        if uniform(0, 1) < rate:
-          return Callbacks.apply_status(battle, target_id, status, callback)
+      if rate and uniform(0, 1) < rate:
+        return Callbacks.apply_status(battle, target_id, status, callback)
     return callback
 
   @staticmethod
