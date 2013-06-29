@@ -5,7 +5,10 @@ from random import (
   uniform,
 )
 
-from core import Callbacks
+from core import (
+  Callbacks,
+  Status,
+)
 from data import (
   move_data,
   type_effectiveness,
@@ -55,6 +58,7 @@ class Move(object):
         callback = None
         if num_hits:
           callback = self.execute_multihit(battle, user_id, target_id, cur_hit, num_hits)
+        callback = self.get_status_callback(battle, target_id, target, callback)
         return Callbacks.do_damage(battle, target_id, damage, message, callback=callback)
       else:
         menu = ["It didn't affect %s!" % (battle.get_name(target_id, lower=True),)]
@@ -123,6 +127,14 @@ class Move(object):
 
   def hits(self, battle, user, target):
     return uniform(0, 100) < self.accuracy
+
+  def get_status_callback(self, battle, target_id, target, callback):
+    for status in Status.priorities:
+      rate = self.extra.get(status + '_rate')
+      if rate and status not in target.statuses:
+        if uniform(0, 1) < rate:
+          return Callbacks.apply_status(battle, target_id, status, callback)
+    return callback
 
   @staticmethod
   def latest_moves(num_moves=4):

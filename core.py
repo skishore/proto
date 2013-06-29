@@ -97,18 +97,32 @@ class Callbacks(object):
       display['callback'] = Callbacks.chain(*rest)
     return lambda battle, choices: display
 
+  @staticmethod
+  def apply_status(battle, target_id, status, callback=None):
+    def update(battle, choices):
+      menu = ['%s was %s!' % (battle.get_name(target_id), Status.verbs[status])]
+      def inner_update(battle, choices):
+        battle.get_pokemon(target_id).statuses.add(status)
+        return {'callback': callback}
+      return {'menu': menu, 'callback': inner_update}
+    return update
+
 
 class Status(object):
-  precedences = {
+  priorities = {
     'burn': 0,
     'poison': 1,
+  }
+  verbs = {
+    'burn': 'burned',
+    'poison': 'poisoned',
   }
 
   @staticmethod
   def apply_updates(battle, choices, index, pokemon):
     callback = None
     pokemon = battle.get_pokemon(index)
-    statuses = sorted(pokemon.statuses, key=lambda status: Status.precedence[status])
+    statuses = sorted(pokemon.statuses, key=lambda status: Status.priorities[status])
     for status in statuses:
       callback = getattr(Status, 'apply_' + status)(battle, index, pokemon, callback)
     if callback:
@@ -118,7 +132,7 @@ class Status(object):
   @staticmethod
   def apply_burn(battle, index, pokemon, callback):
     damage = pokemon.max_hp/8
-    special = ' from the burn'
+    special = '\nfrom the burn'
     return Callbacks.do_damage(battle, index, damage, '', callback=callback, special=special)
 
   @staticmethod
