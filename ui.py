@@ -8,7 +8,7 @@ from sprite import Sprite
 
 draw_sprites = True
 
-screen_size = (360, 300)
+screen_size = (360, 270)
 back_size = 50
 front_size = 56
 
@@ -19,8 +19,8 @@ font_size = 8
 max_name_length = 10
 
 name_size = font_size*max_name_length
-top_row_space = font_size
-status_height = 4*font_size
+top_row_space = font_size/2
+status_height = 7*font_size/2
 health_border = (1, 6)
 health_bar = (
   name_size - 7*font_size/2 - 2*health_border[0],
