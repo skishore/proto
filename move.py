@@ -1,5 +1,6 @@
 import operator
 from random import (
+  randrange,
   sample,
   uniform,
 )
@@ -15,8 +16,6 @@ from data import (
 class Move(object):
   attrs = ('name', 'accuracy', 'power', 'type', 'extra')
   moves = move_data.keys()
-
-  default_crit_rate = 0.0625
 
   def __init__(self, num):
     self.num = num
@@ -44,20 +43,42 @@ class Move(object):
   a callback to be executed after the '<user> used <move>!' text is shown.
   '''
 
-  def execute_default(self, battle, user_id, target_id):
-    # A placeholder implementation of a damaging, single-target move.
+  def execute_default(self, battle, user_id, target_id, cur_hit=0, num_hits=0):
+    '''
+    An implementation of a damaging, single-target move.
+    '''
     user = battle.get_pokemon(user_id)
     target = battle.get_pokemon(target_id)
-    if self.hits(battle, user, target):
+    if num_hits or self.hits(battle, user, target):
       if self.get_type_advantage(target):
         (damage, message) = self.compute_damage(battle, user, target)
-        return Callbacks.do_damage(battle, target_id, damage, message)
+        callback = None
+        if num_hits:
+          callback = self.execute_multihit(battle, user_id, target_id, cur_hit, num_hits)
+        return Callbacks.do_damage(battle, target_id, damage, message, callback=callback)
       else:
         menu = ["It didn't affect %s!" % (battle.get_name(target_id, lower=True),)]
         return Callbacks.chain({'menu': menu})
     else:
       menu = ['It missed %s!' % (battle.get_name(target_id, lower=True),)]
       return Callbacks.chain({'menu': menu})
+
+  def execute_multihit(self, battle, user_id, target_id, cur_hit=0, num_hits=0):
+    '''
+    A move that, if it hits, strikes the target 2-5 times.
+    '''
+    if not num_hits:
+      user = battle.get_pokemon(user_id)
+      target = battle.get_pokemon(target_id)
+      if self.hits(battle, user, target):
+        hits_map = {0: 2, 1: 2, 2: 2, 3: 3, 4: 3, 5: 3, 6: 4, 7: 5}
+        num_hits = hits_map[randrange(8)]
+      else:
+        menu = ['It missed %s!' % (battle.get_name(target_id, lower=True),)]
+        return Callbacks.chain({'menu': menu})
+    if cur_hit < num_hits:
+      return self.execute_default(battle, user_id, target_id, cur_hit + 1, num_hits)
+    return Callbacks.chain({'menu': ['Hit %s times!' % (num_hits,)]})
 
   '''
   Auxilary methods that perform damage computation, etc. begin here.
@@ -85,7 +106,7 @@ class Move(object):
     )
 
   def crit(self, battle, user, target):
-    crit_rate = self.extra.get('crit_rate', self.default_crit_rate)
+    crit_rate = self.extra.get('crit_rate', 0.0625)
     return uniform(0, 1) < crit_rate
 
   def get_type_advantage(self, target):

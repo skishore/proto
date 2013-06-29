@@ -3,7 +3,7 @@
 # The all-caps stop command comes after the last implemented move.
 1,Pound,100,40,35,NORMAL
 2,Karate Chop,100,50,25,FIGHTING,{"crit_rate": 0.25}
-3,Double-Slap,85,15,10,NORMAL
+3,Double-Slap,85,15,10,NORMAL,{"move_type": "multihit"}
 # STOP
 4,Comet Punch,85,18,15,NORMAL
 5,Mega Punch,85,80,20,NORMAL
