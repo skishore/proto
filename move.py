@@ -34,24 +34,34 @@ class Move(object):
     return [('npc', i) for i in range(battle.num_npcs)]
 
   def execute(self, battle, user_id, target_id):
-    '''
-    Move execution methods should return a (menus, callback) pair.
-    '''
+    menu = ['%s used %s!' % (battle.get_name(user_id), self.name)]
+    move_type = self.extra.get('move_type', 'default')
+    callback = getattr(self, 'execute_' + move_type)(battle, user_id, target_id)
+    return {'menu': menu, 'callback': callback}
+
+  '''
+  Move execution methods begin here. All move execution methods should return
+  a callback to be executed after the '<user> used <move>!' text is shown.
+  '''
+
+  def execute_default(self, battle, user_id, target_id):
     # A placeholder implementation of a damaging, single-target move.
     user = battle.get_pokemon(user_id)
     target = battle.get_pokemon(target_id)
-    menu = ['%s used %s!' % (battle.get_name(user_id), self.name)]
     if self.hits(battle, user, target):
       if self.get_type_advantage(target):
         (damage, message) = self.compute_damage(battle, user, target)
-        callback = Callbacks.do_damage(battle, target_id, damage, message)
+        return Callbacks.do_damage(battle, target_id, damage, message)
       else:
-        result = ["It didn't affect %s!" % (battle.get_name(target_id, lower=True),)]
-        callback = Callbacks.chain({'menu': result})
+        menu = ["It didn't affect %s!" % (battle.get_name(target_id, lower=True),)]
+        return Callbacks.chain({'menu': menu})
     else:
-      result = ['It missed %s!' % (battle.get_name(target_id, lower=True),)]
-      callback = Callbacks.chain({'menu': result})
-    return {'menu': menu, 'callback': callback}
+      menu = ['It missed %s!' % (battle.get_name(target_id, lower=True),)]
+      return Callbacks.chain({'menu': menu})
+
+  '''
+  Auxilary methods that perform damage computation, etc. begin here.
+  '''
 
   def compute_damage(self, battle, user, target):
     '''
