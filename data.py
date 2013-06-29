@@ -84,10 +84,8 @@ move_data = {}
 with open('data/moves.txt', 'r') as moves_txt:
   raw_move_data = moves_txt.read()
 
-for line in raw_move_data.split('\r\n'):
+for line in raw_move_data.split('\r\n')[:-1]:
   if line.startswith('#'):
-    if 'STOP' in line:
-      break
     continue
   row = line.split(',')
   assert(row[5] in types), 'Unexpected type: %s' % (row[5],)
@@ -99,5 +97,3 @@ for line in raw_move_data.split('\r\n'):
     'type': row[5],
     'extra': json.loads(','.join(row[6:])) if len(row) > 6 else {}
   }
-else:
-  assert(False), 'Could not find STOP line.'
