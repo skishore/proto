@@ -170,7 +170,7 @@ for line in raw_move_data.split('\r\n')[:-1]:
   for (key, value) in move['extra'].iteritems():
     if key not in (
       'always_hits',
-      'damage',
+      'damage_rule',
       'ignore_immunity',
       'move_type',
       'miss_penalty',
@@ -202,4 +202,6 @@ for line in raw_move_data.split('\r\n')[:-1]:
         'Unexpected extras dict: %s' % (move['extra'],)
     if key == 'target':
       assert(value in ('self',))
-  move_data[int(row[0])] = move
+  num = int(row[0])
+  assert(num not in move_data)
+  move_data[num] = move

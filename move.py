@@ -142,8 +142,6 @@ class Move(object):
       - the amount of damage done if user uses this move on target.
       - a message that describes modifies applied to that damage.
     '''
-    if 'damage' in self.extra:
-      return (self.compute_special_damage(battle, user, target), None)
     crit = self.crit(battle, user, target)
     lvl_multiplier = 4 if crit else 2
     level = float(lvl_multiplier*user.lvl() + 10)/250
@@ -155,20 +153,23 @@ class Move(object):
     stab = 1.5 if self.type in user.types else 1
     type_advantage = self.get_type_advantage(target)
     randomness = uniform(0.85, 1)
-    return (
-      int((level*stat_ratio*power + 2)*stab*type_advantage*randomness),
-      ('Critical hit! ' if crit else '') + (self.get_type_message(battle, user, target))
-    )
+    default = int((level*stat_ratio*power + 2)*stab*type_advantage*randomness)
+    damage = self.apply_damage_rules(battle, user, target, default)
+    return (damage, ('Critical hit! ' if crit else '') + (self.get_type_message(battle, user, target)))
 
-  def compute_special_damage(self, battle, user, target):
-    damage = self.extra['damage']
-    if damage == 'level':
-      return user.lvl()
-    if damage == 'psywave':
-      return max(randint(5, 15)*user.lvl()/10, 1)
-    if damage == 'half':
-      return -(-target.cur_hp/2)
-    return int(damage)
+  def apply_damage_rules(self, battle, user, target, damage):
+    if 'damage_rule' in self.extra:
+      damage_rule = self.extra['damage_rule']
+      if damage_rule == 'false_swipe':
+        return max(min(damage, target.cur_hp - 1), 0)
+      if damage_rule == 'half':
+        return -(-target.cur_hp/2)
+      if damage_rule == 'level':
+        return user.lvl()
+      if damage_rule == 'psywave':
+        return max(randint(5, 15)*user.lvl()/10, 1)
+      return int(damage_rule)
+    return damage
 
   def crit(self, battle, user, target):
     crit_rate = self.extra.get('crit_rate', 0.0625)
