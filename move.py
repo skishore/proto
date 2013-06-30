@@ -173,10 +173,14 @@ class Move(object):
     return uniform(0, 100) < self.accuracy*user.stat(Stat.ACCURACY)/target.stat(Stat.EVASION)
 
   def get_secondary_effect(self, battle, target_id, target, callback):
+    stat_rate = self.extra.get('stat_rate')
+    if stat_rate and uniform(0, 1) < stat_rate:
+      (stat, stages) = (self.extra['stat'], self.extra['stages'])
+      callback = Callbacks.do_buff(battle, target_id, stat, stages, callback=callback)
     for status in Status.OPTIONS:
       rate = self.extra.get(status + '_rate')
       if rate and uniform(0, 1) < rate:
-        return Callbacks.set_status(battle, target_id, status, self, callback=callback)
+        callback = Callbacks.set_status(battle, target_id, status, self, callback=callback)
     return callback
 
   @staticmethod

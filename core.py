@@ -135,7 +135,7 @@ class Callbacks(object):
     return update
 
   @staticmethod
-  def do_buff(battle, target_id, stat, stages):
+  def do_buff(battle, target_id, stat, stages, callback=None):
     def update(battle, choices):
       target = battle.get_pokemon(target_id)
       cur_stage = target.soft_status.get(stat, 0)
@@ -147,8 +147,8 @@ class Callbacks(object):
           stat,
           'rose' if stages > 0 else 'fell',
           ' sharply' if abs(stages) > 1 else '',
-        )]}
-      return {'menu': ['But it failed!']}
+        )], 'callback': callback}
+      return {'menu': ['But it failed!'], 'callback': callback}
     return update
 
 

@@ -180,7 +180,7 @@ for line in raw_move_data.split('\r\n')[:-1]:
     ):
       assert(key.endswith('_rate')), 'Unexpected key: %s' % (key,)
       status = key[:-5]
-      if status not in ('crit',):
+      if status not in ('crit', 'stat'):
         assert(status in Status.OPTIONS), 'Unexpected status: %s' % (status,)
     elif key == 'stat':
       assert(value in Stat.OPTIONS), 'Unexpected stat: %s' % (value,)
