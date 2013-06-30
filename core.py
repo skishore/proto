@@ -9,7 +9,7 @@ from battle_animations import (
   FaintPokemon,
   FlashPokemon,
 )
-from data import stat_names
+from data import Stat
 
 
 class Core(object):
@@ -38,7 +38,7 @@ class Core(object):
     '''
     speeds = defaultdict(list)
     for (index, pokemon) in battle.pokemon.iteritems():
-      speeds[pokemon.stat('spe')].append(index)
+      speeds[pokemon.stat(Stat.SPEED)].append(index)
     for (speed, indices) in speeds.iteritems():
       speeds[speed] = sample(indices, len(indices))
     return sum((
@@ -144,7 +144,7 @@ class Callbacks(object):
         target.soft_status[stat] = new_stage
         return {'menu': ["%s's %s %s%s!" % (
           battle.get_name(target_id),
-          stat_names[stat],
+          stat,
           'rose' if stages > 0 else 'fell',
           ' sharply' if abs(stages) > 1 else '',
         )]}

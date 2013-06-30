@@ -11,8 +11,9 @@ from core import (
 )
 from data import (
   move_data,
-  type_effectiveness,
   physical_types,
+  type_effectiveness,
+  Stat,
 )
 
 
@@ -63,7 +64,7 @@ class Move(object):
         callback = None
         if num_hits:
           callback = self.execute_multihit(battle, user_id, target_id, cur_hit, num_hits)
-        callback = self.get_status_callback(battle, target_id, target, callback)
+        callback = self.get_secondary_effect(battle, target_id, target, callback)
         return Callbacks.do_damage(battle, target_id, damage, message, callback=callback)
       else:
         return self.execute_miss(battle, user_id, target_id)
@@ -108,7 +109,7 @@ class Move(object):
     target = battle.get_pokemon(target_id)
     assert(self.extra.get('target') == 'self' or stages < 0), \
       'Unexpeced buff on enemy: %s' % (self.name,)
-    assert(stat in (target.stats + ('acc', 'eva')) and abs(stages) in (1, 2)), \
+    assert(stat in (target.stats + (Stat.ACCURACY, Stat.EVASION)) and abs(stages) in (1, 2)), \
       'Unexpected buff: (%s, %s)' % (stat, stages)
     return Callbacks.do_buff(battle, target_id, stat, stages)
 
@@ -126,8 +127,8 @@ class Move(object):
     lvl_multiplier = 4 if crit else 2
     level = float(lvl_multiplier*user.lvl() + 10)/250
     stat_ratio = (
-      float(user.stat('atk'))/target.stat('dfn') if self.type in physical_types else
-      float(user.stat('spa'))/target.stat('spd')
+      float(user.stat(Stat.ATTACK))/target.stat(Stat.DEFENSE) if self.type in physical_types else
+      float(user.stat(Stat.SPECIAL_ATTACK))/target.stat(Stat.SPECIAL_DEFENSE)
     )
     stab = 1.5 if self.type in user.types else 1
     type_advantage = self.get_type_advantage(target)
@@ -154,9 +155,9 @@ class Move(object):
     return ''
 
   def hits(self, battle, user, target):
-    return uniform(0, 100) < self.accuracy*user.stat('acc')/target.stat('eva')
+    return uniform(0, 100) < self.accuracy*user.stat(Stat.ACCURACY)/target.stat(Stat.EVASION)
 
-  def get_status_callback(self, battle, target_id, target, callback):
+  def get_secondary_effect(self, battle, target_id, target, callback):
     if target.status:
       return
     for status in Status.verbs:

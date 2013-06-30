@@ -54,11 +54,11 @@ for (i, line) in enumerate(raw_pokedex_data.split('\r\n')[1:252]):
     'johto': int(row[1]),
     'name': row[2].upper(),
     'hp': int(row[3]),
-    'atk': int(row[4]),
-    'dfn': int(row[5]),
-    'spa': int(row[6]),
-    'spd': int(row[7]),
-    'spe': int(row[8]),
+    'attack': int(row[4]),
+    'defense': int(row[5]),
+    'special attack': int(row[6]),
+    'special defense': int(row[7]),
+    'speed': int(row[8]),
     'types': tuple(t for t in row[9:11] if t != 'null'),
   }
   assert(all(t in types for t in pokemon['types'])), \
@@ -98,14 +98,25 @@ for line in raw_move_data.split('\r\n')[:-1]:
     'extra': json.loads(','.join(row[6:])) if len(row) > 6 else {}
   }
 
-#------ Generate a list of human-readable stat names. ------#
+#----- A bunch of enumerations. ------#
 
-stat_names = {
-  'atk': 'attack',
-  'dfn': 'defense',
-  'spa': 'special attack',
-  'spd': 'special defense',
-  'spe': 'speed',
-  'acc': 'accuracy',
-  'eva': 'evasion',
-}
+class Stat:
+  HP = 'hp'
+  ATTACK = 'attack'
+  DEFENSE = 'defense'
+  SPECIAL_ATTACK = 'special attack'
+  SPECIAL_DEFENSE = 'special defense'
+  SPEED = 'speed'
+  ACCURACY = 'accuracy'
+  EVASION = 'evasion'
+
+  OPTIONS = (
+    HP,
+    ATTACK,
+    DEFENSE,
+    SPECIAL_ATTACK,
+    SPECIAL_DEFENSE,
+    SPEED,
+    ACCURACY,
+    EVASION,
+  )

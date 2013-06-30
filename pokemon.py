@@ -1,6 +1,9 @@
 from random import randint
 
-from data import pokedex_data
+from data import (
+  pokedex_data,
+  Stat,
+)
 from move import Move
 
 
@@ -9,7 +12,7 @@ num_pokemon = 251
 
 
 class Pokemon(object):
-  stats = ('hp', 'atk', 'dfn', 'spa', 'spd', 'spe')
+  stats = Stat.OPTIONS[:-2]
 
   # Set up stat multipliers based on the number of stages of buff.
   default_buffs = {}
@@ -41,7 +44,7 @@ class Pokemon(object):
   def compute_stat(self, stat):
     lvl = self.lvl()
     base_plus_iv = pokedex_data[self.num][stat] + self.ivs[stat]
-    if stat == 'hp':
+    if stat == Stat.HP:
       return (base_plus_iv + 50)*lvl/50 + 10
     return base_plus_iv*lvl/50 + 5
 
@@ -52,13 +55,13 @@ class Pokemon(object):
     if stat in self.stats:
       value = getattr(self, stat)
       value *= self.default_buffs[self.soft_status.get(stat, 0)]
-      if stat == 'atk' and self.status == 'burn':
+      if stat == Stat.ATTACK and self.status == 'burn':
         return int(0.50*value)
-      elif stat == 'spe' and self.status == 'paralyze':
+      elif stat == Stat.SPEED and self.status == 'paralyze':
         return int(0.75*value)
       return value
     else:
-      assert(stat in ('acc', 'eva'))
+      assert(stat in (Stat.ACCURACY, Stat.EVASION))
       return self.accuracy_buffs[self.soft_status.get(stat, 0)]
 
   @staticmethod
