@@ -3,6 +3,7 @@ from random import randint
 from data import (
   pokedex_data,
   Stat,
+  Status,
 )
 from move import Move
 
@@ -55,9 +56,9 @@ class Pokemon(object):
     if stat in self.stats:
       value = getattr(self, stat)
       value *= self.default_buffs[self.soft_status.get(stat, 0)]
-      if stat == Stat.ATTACK and self.status == 'burn':
+      if stat == Stat.ATTACK and self.status == Status.BURN:
         return int(0.50*value)
-      elif stat == Stat.SPEED and self.status == 'paralyze':
+      elif stat == Stat.SPEED and self.status == Status.PARALYZE:
         return int(0.75*value)
       return value
     else:

@@ -75,7 +75,7 @@ def get_front_index(pokenum):
   # Account for the fact that we have an extra Jynx sprite.
   if result > 153:
     result += 1
-  return result - 1 
+  return result - 1
 
 
 #------ Parse the move data from my_moves.txt. -------#
@@ -100,7 +100,7 @@ for line in raw_move_data.split('\r\n')[:-1]:
 
 #----- A bunch of enumerations. ------#
 
-class Stat:
+class Stat(object):
   HP = 'hp'
   ATTACK = 'attack'
   DEFENSE = 'defense'
@@ -120,3 +120,42 @@ class Stat:
     ACCURACY,
     EVASION,
   )
+
+
+class Status(object):
+  BURN = 'burn'
+  POISON = 'poison'
+  PARALYZE = 'paralyze'
+  FREEZE = 'freeze'
+  SLEEP = 'sleep'
+  FLINCH = 'flinch'
+
+  OPTIONS = (
+    BURN,
+    POISON,
+    PARALYZE,
+    FREEZE,
+    SLEEP,
+    FLINCH,
+  )
+
+  SOFT_STATUSES = (
+    FLINCH,
+  )
+
+  MARKS = {
+    BURN: 'B',
+    POISON: 'P',
+    PARALYZE: 'R',
+    FREEZE: 'F',
+    SLEEP: 'S',
+  }
+
+  VERBS = {
+    BURN: 'was burned',
+    POISON: 'was poisoned',
+    PARALYZE: 'was paralyzed',
+    FREEZE: 'was frozen solid',
+    SLEEP: 'fell asleep',
+    FLINCH: 'flinched',
+  }

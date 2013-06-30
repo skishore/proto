@@ -9,7 +9,10 @@ from battle_animations import (
   FaintPokemon,
   FlashPokemon,
 )
-from data import Stat
+from data import (
+  Stat,
+  Status,
+)
 
 
 class Core(object):
@@ -54,7 +57,7 @@ class Core(object):
     '''
     assert(choice['type'] == 'move')
     pokemon = battle.get_pokemon(index)
-    (menu, can_move) = Status.transition(battle, index, pokemon)
+    (menu, can_move) = StatusEffects.transition(battle, index, pokemon)
     result = {'menu': menu}
     if can_move:
       move = choice['move'].execute(battle, index, choice.get('target_id'))
@@ -75,7 +78,7 @@ class Core(object):
           break
       else:
         return
-      return Status.apply_update(battle, choices, index, pokemon)
+      return StatusEffects.apply_update(battle, choices, index, pokemon)
     return update
 
 
@@ -127,11 +130,11 @@ class Callbacks(object):
   @staticmethod
   def set_status(battle, target_id, status, callback=None):
     def update(battle, choices):
-      menu = ['%s %s!' % (battle.get_name(target_id), Status.verbs[status])]
-      def inner_update(battle, choices):
-        Status.set_status(battle.get_pokemon(target_id), status)
-        return {'callback': callback}
-      return {'menu': menu, 'callback': inner_update}
+      if StatusEffects.set_status(battle, target_id, status, choices):
+        menu = ['%s %s!' % (battle.get_name(target_id), Status.VERBS[status])]
+        return {'menu': menu, 'callback': callback}
+      elif callback:
+        return callback(battle, choices)
     return update
 
   @staticmethod
@@ -152,26 +155,35 @@ class Callbacks(object):
     return update
 
 
-class Status(object):
-  letters = {
-    'burn': 'B',
-    'poison': 'P',
-    'paralyze': 'R',
-    'freeze': 'F',
-    'sleep': 'S',
-  }
-  verbs = {
-    'burn': 'was burned',
-    'poison': 'was poisoned',
-    'paralyze': 'was paralyzed',
-    'freeze': 'was frozen solid',
-    'sleep': 'fell asleep',
-  }
+class StatusEffects(object):
+  @staticmethod
+  def set_status(battle, target_id, status, choices):
+    '''
+    Sets a Pokemon's status. Returns True if it is set.
+    '''
+    pokemon = battle.get_pokemon(target_id)
+    if status in Status.SOFT_STATUSES:
+      assert(status == Status.FLINCH), 'Soft status %s is not implemented' % (status,)
+      if target_id in choices:
+        del choices[target_id]
+        return True
+      return False
+    else:
+      assert(status in Status.OPTIONS), 'Unexpected status: %s' % (status,)
+      pokemon.status = status
+      if status == Status.SLEEP:
+        pokemon.soft_status['sleep_turns'] = randint(1, 7)
+      return True
+
+  @staticmethod
+  def clear_status(pokemon):
+    pokemon.status = None
+    pokemon.soft_status.pop('sleep_turns', None)
 
   @staticmethod
   def apply_update(battle, choices, index, pokemon):
-    if pokemon.status and hasattr(Status, 'apply_' + pokemon.status):
-      callback = getattr(Status, 'apply_' + pokemon.status)(battle, index, pokemon)
+    if pokemon.status and hasattr(StatusEffects, 'apply_' + pokemon.status):
+      callback = getattr(StatusEffects, 'apply_' + pokemon.status)(battle, index, pokemon)
       return callback(battle, choices)
     return None
 
@@ -188,35 +200,24 @@ class Status(object):
     return Callbacks.do_damage(battle, index, damage, '', special=special)
 
   @staticmethod
-  def set_status(pokemon, status):
-    pokemon.status = status
-    if status == 'sleep':
-      pokemon.soft_status['sleep_turns'] = randint(1, 7)
-
-  @staticmethod
-  def clear_status(pokemon):
-    pokemon.status = None
-    pokemon.soft_status.pop('sleep_turns', None)
-
-  @staticmethod
   def transition(battle, index, pokemon):
     '''
     Transitions the status of a Pokemon with a status ailment. Returns a (menu, move)
     pair - the menu is a message to show, while move is True if the Pokemon can move.
     '''
     name = battle.get_name(index)
-    if pokemon.status == 'sleep':
+    if pokemon.status == Status.SLEEP:
       pokemon.soft_status['sleep_turns'] -= 1
       if not pokemon.soft_status['sleep_turns']:
-        Status.clear_status(pokemon)
+        StatusEffects.clear_status(pokemon)
         return (['%s woke up!' % (name,)], False)
       return (['%s was fast asleep!' % (name,)], False)
-    elif pokemon.status == 'freeze':
+    elif pokemon.status == Status.FREEZE:
       if uniform(0, 1) < 0.20:
-        Status.clear_status(pokemon)
+        StatusEffects.clear_status(pokemon)
         return (['%s is frozen no more!' % (name,)], True)
       return (['%s is still frozen!' % (name,)], False)
-    elif pokemon.status == 'paralyze':
+    elif pokemon.status == Status.PARALYZE:
       if uniform(0, 1) < 0.25:
         return (['%s is fully paralyzed!' % (name,)], False)
     return (None, True)

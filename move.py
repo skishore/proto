@@ -5,15 +5,13 @@ from random import (
   uniform,
 )
 
-from core import (
-  Callbacks,
-  Status,
-)
+from core import Callbacks
 from data import (
   move_data,
   physical_types,
   type_effectiveness,
   Stat,
+  Status,
 )
 
 
@@ -163,9 +161,9 @@ class Move(object):
     return uniform(0, 100) < self.accuracy*user.stat(Stat.ACCURACY)/target.stat(Stat.EVASION)
 
   def get_secondary_effect(self, battle, target_id, target, callback):
-    if target.status:
-      return
-    for status in Status.verbs:
+    for status in Status.OPTIONS:
+      if target.status and status not in Status.SOFT_STATUSES:
+        continue
       rate = self.extra.get(status + '_rate')
       if rate and uniform(0, 1) < rate:
         return Callbacks.set_status(battle, target_id, status, callback)
