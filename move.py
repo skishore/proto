@@ -42,13 +42,13 @@ class Move(object):
   def execute(self, battle, user_id, target_id):
     menu = ['%s used %s!' % (battle.get_name(user_id), self.name)]
     move_type = self.extra.get('move_type', 'default')
-    (callback, success) = getattr(self, 'execute_' + move_type)(battle, user_id, target_id)
-    return {'menu': menu, 'callback': callback, 'success': success}
+    (callback, outcome) = getattr(self, 'execute_' + move_type)(battle, user_id, target_id)
+    return {'menu': menu, 'callback': callback, 'outcome': outcome}
 
   '''
   Move execution methods begin here. All move execution methods should return a pair:
     - a callback to be executed after the '<user> used <move>!' text is shown.
-    - a success flag, which determines whether or not the post-move hook should be executed.
+    - an outcome dict, which determines whether or not the post-move hook should be executed.
   '''
 
   def execute_default(self, battle, user_id, target_id, cur_hit=0, num_hits=0):
@@ -64,7 +64,9 @@ class Move(object):
         if num_hits:
           (callback, _) = self.execute_multihit(battle, user_id, target_id, cur_hit, num_hits)
         callback = self.get_secondary_effect(battle, target_id, target, callback=callback)
-        return (Callbacks.do_damage(battle, target_id, damage, message, callback=callback), True)
+        return (Callbacks.do_damage(battle, target_id, damage, message, callback=callback), {
+          'damage': damage
+        })
       else:
         return self.execute_miss(battle, user_id, target_id)
     else:
@@ -208,13 +210,20 @@ class Move(object):
         total_mass -= rate
     return callback
 
-  def post_move_hook(self, battle, user_id, callback=None):
+  def post_move_hook(self, battle, user_id, outcome, callback=None):
     if 'post_move_hook' in self.extra:
       hook = self.extra.get('post_move_hook')
-      assert(hook['type'] == 'buff'), 'Unexpected hook %s' % (hook,)
-      if uniform(0, 1) < hook['rate']:
-        (stat, stages) = (hook['stat'], hook['stages'])
-        return Callbacks.do_buff(battle, user_id, stat, stages, callback=callback)
+      if hook['type'] == 'buff':
+        if uniform(0, 1) < hook['rate']:
+          (stat, stages) = (hook['stat'], hook['stages'])
+          return Callbacks.do_buff(battle, user_id, stat, stages, callback=callback)
+      elif hook['type'] == 'recoil':
+        assert('damage' in outcome), 'Unexpected outcome %s for %s' % (outcome, self.name)
+        damage = max(int(hook['ratio']*outcome['damage']), 1)
+        message = "%s's hit by the recoil!" % (battle.get_name(user_id),)
+        return Callbacks.do_damage(battle, user_id, damage, message, callback=callback)
+      else:
+        assert(False), 'Unexpected hook: %s' % (hook,)
     return callback
 
   @staticmethod
