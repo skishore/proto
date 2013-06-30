@@ -49,7 +49,7 @@
 #46,Roar,100,0,20,NORMAL
 47,Sing,55,0,15,NORMAL,{"move_type": "status", "status": "sleep"}
 48,Supersonic,55,0,20,NORMAL,{"move_type": "status", "status": "confuse"}
-#49,SonicBoom,90,1,20,NORMAL
+49,SonicBoom,90,1,20,NORMAL,{"damage": 20}
 #50,Disable,100,0,20,NORMAL
 #51,Acid,100,40,30,POISON
 #52,Ember,100,40,25,FIRE

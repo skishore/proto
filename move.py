@@ -134,6 +134,8 @@ class Move(object):
       - the amount of damage done if user uses this move on target.
       - a message that describes modifies applied to that damage.
     '''
+    if 'damage' in self.extra:
+      return (self.extra['damage'], None)
     crit = self.crit(battle, user, target)
     lvl_multiplier = 4 if crit else 2
     level = float(lvl_multiplier*user.lvl() + 10)/250
@@ -154,6 +156,8 @@ class Move(object):
     return uniform(0, 1) < crit_rate
 
   def get_type_advantage(self, target):
+    if 'damage' in self.extra:
+      return 1
     factors = (Type.TYPE_EFFECTIVENESS[self.type][type] for type in target.types)
     return reduce(operator.mul, factors, 1)
 
