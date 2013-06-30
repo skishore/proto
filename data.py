@@ -174,6 +174,7 @@ for line in raw_move_data.split('\r\n')[:-1]:
       'move_type',
       'miss_penalty',
       'num_hits',
+      'priority',
       'target',
       'stat',
       'stages',

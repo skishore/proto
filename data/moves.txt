@@ -61,7 +61,7 @@
 58,Ice Beam,100,95,10,ICE,{"freeze_rate": 0.10}
 59,Blizzard,70,120,5,ICE,{"freeze_rate": 0.10}
 60,Psybeam,100,65,20,PSYCHIC,{"confuse_rate": 0.10}
-61,BubbleBeam,100,65,20,WATER,{"stat_rate": 0.10, "stat": "speed", "stages": -1}
+61,Bubblebeam,100,65,20,WATER,{"stat_rate": 0.10, "stat": "speed", "stages": -1}
 62,Aurora Beam,100,65,20,ICE,{"stat_rate": 0.10, "stat": "attack", "stages": -1}
 #63,Hyper Beam,90,150,5,NORMAL
 64,Peck,100,35,35,FLYING
@@ -75,30 +75,30 @@
 #72,Mega Drain,100,40,15,GRASS
 #73,Leech Seed,90,0,10,GRASS
 74,Growth,101,0,40,NORMAL,{"move_type": "buff", "stat": ["attack", "special attack"], "stages": 1, "target": "self"}
-#75,Razor Leaf,95,55,25,GRASS
-#76,SolarBeam,100,120,10,GRASS
-#77,PoisonPowder,75,0,35,POISON
-#78,Stun Spore,75,0,30,GRASS
-#79,Sleep Powder,75,0,15,GRASS
+75,Razor Leaf,95,55,25,GRASS,{"crit_rate": 0.25}
+#76,Solarbeam,100,120,10,GRASS
+77,Poison Powder,75,0,35,POISON,{"move_type": "status", "status": "poison"}
+78,Stun Spore,75,0,30,GRASS,{"move_type": "status", "status": "paralyze"}
+79,Sleep Powder,75,0,15,GRASS,{"move_type": "status", "status": "sleep"}
 #80,Petal Dance,100,120,10,GRASS
-#81,String Shot,95,0,40,BUG
-#82,Dragon Rage,100,1,10,DRAGON
+81,String Shot,95,0,40,BUG,{"move_type": "buff", "stat": "speed", "stages": -1}
+82,Dragon Rage,100,1,10,DRAGON,{"damage": 40}
 #83,Fire Spin,85,35,15,FIRE
-#84,ThunderShock,100,40,30,ELECTRIC
-#85,Thunderbolt,100,95,15,ELECTRIC
-#86,Thunder Wave,100,0,20,ELECTRIC
-#87,Thunder,70,120,10,ELECTRIC
-#88,Rock Throw,90,50,15,ROCK
+84,Thundershock,100,40,30,ELECTRIC,{"paralyze_rate": 0.10}
+85,Thunderbolt,100,95,15,ELECTRIC,{"paralyze_rate": 0.10}
+86,Thunder Wave,100,0,20,ELECTRIC,{"move_type": "status", "status": "paralyze"}
+87,Thunder,70,120,10,ELECTRIC,{"paralyze_rate": 0.30}
+88,Rock Throw,90,50,15,ROCK
 #89,Earthquake,100,100,10,GROUND
 #90,Fissure,30,1,5,GROUND
 #91,Dig,100,80,10,GROUND
 #92,Toxic,90,0,10,POISON
-#93,Confusion,100,50,25,PSYCHIC
-#94,Psychic,100,90,10,PSYCHIC
-#95,Hypnosis,60,0,20,PSYCHIC
-#96,Meditate,101,0,40,PSYCHIC
-#97,Agility,101,0,30,PSYCHIC
-#98,Quick Attack,100,40,30,NORMAL
+93,Confusion,100,50,25,PSYCHIC,{"confuse_rate": 0.10}
+94,Psychic,100,90,10,PSYCHIC,{"stat_rate": 0.10, "stat": "special defense", "stages": -1}
+95,Hypnosis,60,0,20,PSYCHIC,{"move_type": "status", "status": "sleep"}
+96,Meditate,101,0,40,PSYCHIC,{"move_type": "buff", "stat": "attack", "stages": 1, "target": "self"}
+97,Agility,101,0,30,PSYCHIC,{"move_type": "buff", "stat": "speed", "stages": 2, "target": "self"}
+98,Quick Attack,100,40,30,NORMAL,{"priority": 1}
 #99,Rage,100,20,20,NORMAL
 #100,Teleport,101,0,20,PSYCHIC
 #101,Night Shade,100,1,15,GHOST

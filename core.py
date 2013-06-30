@@ -27,7 +27,7 @@ class Core(object):
     This method may update the battle and the set of remaining choices.
     '''
     assert(choices)
-    for index in Core.execution_order(battle):
+    for index in Core.execution_order(battle, choices):
       if index in choices:
         choice = choices.pop(index)
         sess_id = battle.get_pokemon(index).sess_id
@@ -36,13 +36,16 @@ class Core(object):
         return result
 
   @staticmethod
-  def execution_order(battle):
+  def execution_order(battle, choices):
     '''
     Returns a list of Pokemon indices sorted by speed. Ties are broken randomly.
     '''
     speeds = defaultdict(list)
     for (index, pokemon) in battle.pokemon.iteritems():
-      speeds[pokemon.stat(Stat.SPEED)].append(index)
+      priority = 0
+      if index in choices and choices[index]['type'] == 'move':
+        priority = choices[index]['move'].extra.get('priority', 0)
+      speeds[(priority, pokemon.stat(Stat.SPEED))].append(index)
     for (speed, indices) in speeds.iteritems():
       speeds[speed] = sample(indices, len(indices))
     return sum((
