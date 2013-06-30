@@ -14,6 +14,7 @@ from data import (
   Status,
   Type,
 )
+from util import oxford_list
 
 
 class Core(object):
@@ -157,7 +158,7 @@ class Callbacks(object):
       if updates:
         return {'menu': ["%s's %s %s%s!" % (
           battle.get_name(target_id),
-          ' and '.join(updates),
+          oxford_list(updates),
           'rose' if stages > 0 else 'fell',
           ' sharply' if abs(stages) > 1 else '',
         )], 'callback': callback}

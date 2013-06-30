@@ -221,32 +221,32 @@
 #218,Frustration,100,1,20,NORMAL
 #219,Safeguard,101,0,25,NORMAL
 #220,Pain Split,101,0,20,NORMAL
-#221,Sacred Fire,95,100,5,FIRE
+221,Sacred Fire,95,100,5,FIRE,{"burn_rate": 0.50}
 #222,Magnitude,100,1,30,GROUND
-#223,DynamicPunch,50,100,5,FIGHTING
-#224,Megahorn,85,120,10,BUG
-#225,DragonBreath,100,60,20,DRAGON
+223,Dynamic Punch,50,100,5,FIGHTING,{"confuse_rate": 1.00}
+224,Megahorn,85,120,10,BUG
+225,Dragon Breath,100,60,20,DRAGON,{"paralyze_rate": 0.30}
 #226,Baton Pass,101,0,40,NORMAL
 #227,Encore,100,0,5,NORMAL
 #228,Pursuit,100,40,20,DARK
 #229,Rapid Spin,100,20,40,NORMAL
-#230,Sweet Scent,100,0,20,NORMAL
-#231,Iron Tail,75,100,15,STEEL
-#232,Metal Claw,95,50,35,STEEL
-#233,Vital Throw,101,70,10,FIGHTING
+230,Sweet Scent,100,0,20,NORMAL,{"move_type": "buff", "stat": "evasion", "stages": -1}
+231,Iron Tail,75,100,15,STEEL,{"stat_rate": 0.10, "stat": "defense", "stages": -1}
+232,Metal Claw,95,50,35,STEEL,{"post_move_hook": {"type": "buff", "rate": 0.10, "stat": "attack", "stages": 1}}
+233,Vital Throw,101,70,10,FIGHTING,{"always_hits": true, "priority": -1}
 #234,Morning Sun,101,0,5,NORMAL
 #235,Synthesis,101,0,5,GRASS
 #236,Moonlight,101,0,5,NORMAL
 #237,Hidden Power,100,1,15,NORMAL
-#238,Cross Chop,80,100,5,FIGHTING
-#239,Twister,100,40,20,DRAGON
+238,Cross Chop,80,100,5,FIGHTING,{"crit_rate": 0.25}
+239,Twister,100,40,20,DRAGON,{"flinch_rate": 0.20}
 #240,Rain Dance,101,0,5,WATER
 #241,Sunny Day,101,0,5,FIRE
-#242,Crunch,100,80,15,DARK
+242,Crunch,100,80,15,DARK,{"stat_rate": 0.20, "stat": "special defense", "stages": -1}
 #243,Mirror Coat,100,1,20,PSYCHIC
 #244,Psych Up,101,0,10,NORMAL
-#245,ExtremeSpeed,100,80,5,NORMAL
-#246,AncientPower,100,60,5,ROCK
+245,Extreme Speed,100,80,5,NORMAL,{"priority": 2}
+246,AncientPower,100,60,5,ROCK,{"post_move_hook": {"type": "buff", "rate": 0.10, "stat": ["attack", "defense", "special attack", "special defense", "speed"], "stages": 1}}
 #247,Shadow Ball,100,80,15,GHOST
 #248,Future Sight,100,100,10,PSYCHIC
 #249,Rock Smash,100,40,15,FIGHTING
