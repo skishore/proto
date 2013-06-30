@@ -26,7 +26,7 @@
 23,Stomp,100,65,20,NORMAL
 24,Double Kick,100,30,30,FIGHTING,{"move_type": "multihit", "num_hits": 2}
 25,Mega Kick,75,120,5,NORMAL
-26,Jump Kick,95,100,10,FIGHTING,{"miss_penalty": true}
+26,Jump Kick,95,100,10,FIGHTING,{"miss_penalty": 0.125}
 27,Rolling Kick,85,60,15,FIGHTING,{"flinch_rate": 0.30}
 28,Sand-Attack,100,0,15,GROUND,{"move_type": "buff", "stat": "accuracy", "stages": -1}
 29,Headbutt,100,70,15,NORMAL,{"flinch_rate": 0.30}
@@ -101,18 +101,18 @@
 98,Quick Attack,100,40,30,NORMAL,{"priority": 1}
 #99,Rage,100,20,20,NORMAL
 #100,Teleport,101,0,20,PSYCHIC
-#101,Night Shade,100,1,15,GHOST
+101,Night Shade,100,1,15,GHOST,{"damage": "level"}
 #102,Mimic,101,0,10,NORMAL
-#103,Screech,85,0,40,NORMAL
-#104,Double Team,101,0,15,NORMAL
+103,Screech,85,0,40,NORMAL,{"move_type": "buff", "stat": "defense", "stages": -2}
+104,Double Team,101,0,15,NORMAL,{"move_type": "buff", "stat": "evasion", "stages": 1, "target": "self"}
 #105,Recover,101,0,10,NORMAL
-#106,Harden,101,0,30,NORMAL
+106,Harden,101,0,30,NORMAL,{"move_type": "buff", "stat": "defense", "stages": 1, "target": "self"}
 #107,Minimize,101,0,20,NORMAL
-#108,SmokeScreen,100,0,20,NORMAL
-#109,Confuse Ray,100,0,10,GHOST
-#110,Withdraw,101,0,40,WATER
-#111,Defense Curl,101,0,40,NORMAL
-#112,Barrier,101,0,30,PSYCHIC
+108,Smokescreen,100,0,20,NORMAL,{"move_type": "buff", "stat": "accuracy", "stages": -1}
+109,Confuse Ray,100,0,10,GHOST,{"move_type": "status", "status": "confuse"}
+110,Withdraw,101,0,40,WATER,{"move_type": "buff", "stat": "defense", "stages": 1, "target": "self"}
+111,Defense Curl,101,0,40,NORMAL,{"move_type": "buff", "stat": "defense", "stages": 1, "target": "self"}
+112,Barrier,101,0,30,PSYCHIC,{"move_type": "buff", "stat": "defense", "stages": 2, "target": "self"}
 #113,Light Screen,101,0,30,PSYCHIC
 #114,Haze,101,0,30,ICE
 #115,Reflect,101,0,20,PSYCHIC
@@ -121,53 +121,53 @@
 #118,Metronome,101,0,10,NORMAL
 #119,Mirror Move,101,0,20,FLYING
 #120,Selfdestruct,100,200,5,NORMAL
-#121,Egg Bomb,75,100,10,NORMAL
-#122,Lick,100,20,30,GHOST
-#123,Smog,70,20,20,POISON
-#124,Sludge,100,65,20,POISON
-#125,Bone Club,85,65,20,GROUND
-#126,Fire Blast,85,120,5,FIRE
-#127,Waterfall,100,80,15,WATER
+121,Egg Bomb,75,100,10,NORMAL
+122,Lick,100,20,30,GHOST,{"paralyze_rate": 0.30}
+123,Smog,70,20,20,POISON,{"poison_rate": 0.40}
+124,Sludge,100,65,20,POISON,{"poison_rate": 0.30}
+125,Bone Club,85,65,20,GROUND,{"flinch_rate": 0.10}
+126,Fire Blast,85,120,5,FIRE,{"burn_rate": 0.10}
+127,Waterfall,100,80,15,WATER,{"flinch_rate": 0.20}
 #128,Clamp,85,35,15,WATER
-#129,Swift,101,60,20,NORMAL
+129,Swift,101,60,20,NORMAL,{"always_hits": true}
 #130,Skull Bash,100,100,15,NORMAL
-#131,Spike Cannon,100,20,15,NORMAL
+131,Spike Cannon,100,20,15,NORMAL,{"move_type": "multihit"}
 #132,Constrict,100,10,35,NORMAL
-#133,Amnesia,101,0,20,PSYCHIC
-#134,Kinesis,80,0,15,PSYCHIC
+133,Amnesia,101,0,20,PSYCHIC,{"move_type": "buff", "stat": "special defense", "stages": 2, "target": "self"}
+134,Kinesis,80,0,15,PSYCHIC,{"move_type": "buff", "stat": "accuracy", "stages": -1}
 #135,Softboiled,101,0,10,NORMAL
-#136,Hi Jump Kick,90,130,10,FIGHTING
-#137,Glare,90,0,30,NORMAL
+136,Hi Jump Kick,90,130,10,FIGHTING,{"miss_penalty": 0.50}
+137,Glare,90,0,30,NORMAL,{"move_type": "status", "status": "paralyze"}
 #138,Dream Eater,100,100,15,PSYCHIC
-#139,Poison Gas,80,0,40,POISON
-#140,Barrage,85,15,20,NORMAL
+139,Poison Gas,80,0,40,POISON,{"move_type": "status", "status": "poison"}
+140,Barrage,85,15,20,NORMAL,{"move_type": "multihit"}
 #141,Leech Life,100,20,15,BUG
-#142,Lovely Kiss,75,0,10,NORMAL
+142,Lovely Kiss,75,0,10,NORMAL,{"move_type": "status", "status": "sleep"}
 #143,Sky Attack,90,140,5,FLYING
 #144,Transform,101,0,10,NORMAL
-#145,Bubble,100,20,30,WATER
-#146,Dizzy Punch,100,70,10,NORMAL
-#147,Spore,100,0,15,GRASS
-#148,Flash,100,0,20,NORMAL
-#149,Psywave,80,1,15,PSYCHIC
-#150,Splash,101,0,40,NORMAL
-#151,Acid Armor,101,0,40,POISON
-#152,Crabhammer,90,90,10,WATER
+145,Bubble,100,20,30,WATER,{"stat_rate": 0.10, "stat": "speed", "stages": -1}
+146,Dizzy Punch,100,70,10,NORMAL,{"confuse_rate": 0.20}
+147,Spore,100,0,15,GRASS,{"move_type": "status", "status": "sleep"}
+148,Flash,100,0,20,NORMAL,{"move_type": "buff", "stat": "accuracy", "stages": -1}
+149,Psywave,80,1,15,PSYCHIC,{"damage": "psywave"}
+150,Splash,101,0,40,NORMAL,{"move_type": "failure", "target": "self"}
+151,Acid Armor,101,0,40,POISON,{"move_type": "buff", "stat": "defense", "stages": 2, "target": "self"}
+152,Crabhammer,90,90,10,WATER,{"crit_rate": 0.25}
 #153,Explosion,100,250,5,NORMAL
-#154,Fury Swipes,80,18,15,NORMAL
-#155,Bonemerang,90,50,10,GROUND
+154,Fury Swipes,80,18,15,NORMAL,{"move_type": "multihit"}
+155,Bonemerang,90,50,10,GROUND,{"move_type": "multihit", "num_hits": 2}
 #156,Rest,101,0,10,PSYCHIC
-#157,Rock Slide,90,75,10,ROCK
-#158,Hyper Fang,90,80,15,NORMAL
-#159,Sharpen,101,0,30,NORMAL
+157,Rock Slide,90,75,10,ROCK,{"flinch_rate": 0.30}
+158,Hyper Fang,90,80,15,NORMAL,{"flinch_rate": 0.10}
+159,Sharpen,101,0,30,NORMAL,{"move_type": "buff", "stat": "attack", "stages": 1, "target": "self"}
 #160,Conversion,101,0,30,NORMAL
-#161,Tri Attack,100,80,10,NORMAL
-#162,Super Fang,90,1,10,NORMAL
-#163,Slash,100,70,20,NORMAL
+161,Tri Attack,100,80,10,NORMAL,{"burn_rate": 0.0667, "freeze_rate": 0.0667, "paralyze_rate": 0.0667}
+162,Super Fang,90,1,10,NORMAL,{"damage": "half"}
+163,Slash,100,70,20,NORMAL,{"crit_rate": 0.25}
 #164,Substitute,101,0,10,NORMAL
 #165,Struggle,101,50,1,NORMAL
 #166,Sketch,101,0,1,NORMAL
-#167,Triple Kick,90,10,10,FIGHTING
+167,Triple Kick,90,10,10,FIGHTING,{"move_type": "multihit", "num_hits": 3, "power": "linear"}
 #168,Thief,100,40,10,DARK
 #169,Spider Web,101,0,10,BUG
 #170,Mind Reader,101,0,5,NORMAL

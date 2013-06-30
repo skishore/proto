@@ -169,11 +169,13 @@ for line in raw_move_data.split('\r\n')[:-1]:
   }
   for (key, value) in move['extra'].iteritems():
     if key not in (
+      'always_hits',
       'damage',
       'ignore_immunity',
       'move_type',
       'miss_penalty',
       'num_hits',
+      'power',
       'priority',
       'target',
       'stat',
@@ -184,6 +186,12 @@ for line in raw_move_data.split('\r\n')[:-1]:
       status = key[:-5]
       if status not in ('crit', 'stat'):
         assert(status in Status.OPTIONS), 'Unexpected status: %s' % (status,)
+    if key == 'move_type':
+      assert(value in ('buff', 'failure', 'multihit', 'status')), \
+        'Unexpected move type: %s' % (value,)
+    if key == 'stages':
+      assert(abs(value) in (1, 2)), 'Unexpected stages: %s' % (value,)
+      assert((value > 0) == (move['extra'].get('target') == 'self'))
     if key == 'stat':
       if isinstance(value, list):
         assert(all(v in Stat.OPTIONS for v in value)), 'Unexpected stat: %s' % (value,)

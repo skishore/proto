@@ -1,5 +1,6 @@
 import operator
 from random import (
+  randint,
   randrange,
   sample,
   uniform,
@@ -57,7 +58,7 @@ class Move(object):
     target = battle.get_pokemon(target_id)
     if self.get_type_advantage(target):
       if num_hits or self.hits(battle, user, target):
-        (damage, message) = self.compute_damage(battle, user, target)
+        (damage, message) = self.compute_damage(battle, user, target, cur_hit)
         callback = None
         if num_hits:
           callback = self.execute_multihit(battle, user_id, target_id, cur_hit, num_hits)
@@ -96,7 +97,8 @@ class Move(object):
     message = message or 'But it missed!'
     if 'miss_penalty' in self.extra:
       user = battle.get_pokemon(user_id)
-      damage = -(-user.cur_hp/8)
+      (damage, _) = self.compute_damage(battle, user, battle.get_pokemon(target_id))
+      damage = int(damage*self.extra['miss_penalty'])
       return Callbacks.do_damage(battle, user_id, damage, message, special=' instead')
     return Callbacks.chain({'menu': [message or 'But it missed!']})
 
@@ -106,7 +108,7 @@ class Move(object):
       assert(all(s in Stat.OPTIONS for s in stat)), 'Unexpected stat: %s' % (stat,)
     else:
       assert(stat in Stat.OPTIONS), 'Unexpected stat: %s' % (stat,)
-    assert(abs(stages) in (1, 2)), 'Unexpected buff: (%s, %s)' % (stat, stages)
+    assert(abs(stages) in (1, 2)), 'Unexpected stages: %s' % (stages,)
     user = battle.get_pokemon(user_id)
     if self.extra.get('target') == 'self':
       target_id = user_id
@@ -127,22 +129,25 @@ class Move(object):
       return Callbacks.set_status(battle, target_id, status, self, noisy_failure=True)
     return self.execute_miss(battle, user_id, target_id)
 
+  def execute_failure(self, battle, user_id, target_id):
+    return Callbacks.chain({'menu': ['Nothing happened...']})
+
   '''
   Auxilary methods that perform damage computation, etc. begin here.
   '''
 
-  def compute_damage(self, battle, user, target):
+  def compute_damage(self, battle, user, target, cur_hit=0):
     '''
     Returns a pair:
       - the amount of damage done if user uses this move on target.
       - a message that describes modifies applied to that damage.
     '''
     if 'damage' in self.extra:
-      damage = self.extra['damage']
-      return (damage if damage != 'level' else user.lvl(), None)
+      return (self.compute_special_damage(battle, user, target), None)
     crit = self.crit(battle, user, target)
     lvl_multiplier = 4 if crit else 2
     level = float(lvl_multiplier*user.lvl() + 10)/250
+    power = cur_hit*self.power if self.extra.get('power') == 'linear' else self.power
     stat_ratio = (
       float(user.stat(Stat.ATTACK))/target.stat(Stat.DEFENSE) if self.type in Type.PHYSICAL_TYPES else
       float(user.stat(Stat.SPECIAL_ATTACK))/target.stat(Stat.SPECIAL_DEFENSE)
@@ -151,9 +156,19 @@ class Move(object):
     type_advantage = self.get_type_advantage(target)
     randomness = uniform(0.85, 1)
     return (
-      int((level*stat_ratio*self.power + 2)*stab*type_advantage*randomness),
+      int((level*stat_ratio*power + 2)*stab*type_advantage*randomness),
       ('Critical hit! ' if crit else '') + (self.get_type_message(battle, user, target))
     )
+
+  def compute_special_damage(self, battle, user, target):
+    damage = self.extra['damage']
+    if damage == 'level':
+      return user.lvl()
+    if damage == 'psywave':
+      return max(randint(5, 15)*user.lvl()/10, 1)
+    if damage == 'half':
+      return -(-target.cur_hp/2)
+    return int(damage)
 
   def crit(self, battle, user, target):
     crit_rate = self.extra.get('crit_rate', 0.0625)
@@ -174,17 +189,25 @@ class Move(object):
     return ''
 
   def hits(self, battle, user, target):
+    if self.extra.get('always_hits'):
+      return True
     return uniform(0, 100) < self.accuracy*user.stat(Stat.ACCURACY)/target.stat(Stat.EVASION)
 
   def get_secondary_effect(self, battle, target_id, target, callback):
+    total_mass = 1.0
     stat_rate = self.extra.get('stat_rate')
-    if stat_rate and uniform(0, 1) < stat_rate:
-      (stat, stages) = (self.extra['stat'], self.extra['stages'])
-      callback = Callbacks.do_buff(battle, target_id, stat, stages, callback=callback)
+    if stat_rate:
+      if uniform(0, total_mass) < stat_rate:
+        (stat, stages) = (self.extra['stat'], self.extra['stages'])
+        assert(stages < 0), 'Unexpect stat buff: %s' % (self.name,)
+        return Callbacks.do_buff(battle, target_id, stat, stages, callback=callback)
+      total_mass -= stat_rate
     for status in Status.OPTIONS:
       rate = self.extra.get(status + '_rate')
-      if rate and uniform(0, 1) < rate:
-        callback = Callbacks.set_status(battle, target_id, status, self, callback=callback)
+      if rate:
+        if uniform(0, total_mass) < rate:
+          return Callbacks.set_status(battle, target_id, status, self, callback=callback)
+        total_mass -= rate
     return callback
 
   @staticmethod
@@ -201,6 +224,7 @@ class ConfusedMove(Move):
   def __init__(self):
     self.power = 40
     self.type = None
+    self.extra = {}
 
   def crit(self, battle, user, target):
     return False
