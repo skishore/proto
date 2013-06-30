@@ -27,7 +27,7 @@
 24,Double Kick,100,30,30,FIGHTING,{"move_type": "multihit", "num_hits": 2}
 25,Mega Kick,75,120,5,NORMAL
 26,Jump Kick,95,100,10,FIGHTING,{"miss_penalty": true}
-#27,Rolling Kick,85,60,15,FIGHTING
+27,Rolling Kick,85,60,15,FIGHTING,{"flinch_rate": 0.30}
 28,Sand-Attack,100,0,15,GROUND,{"move_type": "buff", "stat": "accuracy", "stages": -1}
 29,Headbutt,100,70,15,NORMAL,{"flinch_rate": 0.30}
 30,Horn Attack,100,65,25,NORMAL
@@ -39,13 +39,13 @@
 #36,Take Down,85,90,20,NORMAL
 #37,Thrash,100,120,10,NORMAL
 #38,Double-Edge,100,120,15,NORMAL
-#39,Tail Whip,100,0,30,NORMAL
-#40,Poison Sting,100,15,35,POISON
-#41,Twineedle,100,25,20,BUG
-#42,Pin Missile,85,14,20,BUG
-#43,Leer,100,0,30,NORMAL
-#44,Bite,100,60,25,DARK
-#45,Growl,100,0,40,NORMAL
+39,Tail Whip,100,0,30,NORMAL,{"move_type": "buff", "stat": "defense", "stages": -1}
+40,Poison Sting,100,15,35,POISON,{"poison_rate": 0.10}
+41,Twineedle,100,25,20,BUG,{"move_type": "multihit", "num_hits": 2, "poison_rate": 0.20}
+42,Pin Missile,85,14,20,BUG,{"move_type": "multihit"}
+43,Leer,100,0,30,NORMAL,{"move_type": "buff", "stat": "defense", "stages": -1}
+44,Bite,100,60,25,DARK,{"flinch_rate": 0.30}
+45,Growl,100,0,40,NORMAL,{"move_type": "buff", "stat": "attack", "stages": -1}
 #46,Roar,100,0,20,NORMAL
 #47,Sing,55,0,15,NORMAL
 #48,Supersonic,55,0,20,NORMAL

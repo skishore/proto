@@ -165,4 +165,6 @@ for line in raw_move_data.split('\r\n')[:-1]:
       status = key[:-5]
       if status not in ('crit',):
         assert(status in Status.OPTIONS), 'Unexpected status: %s' % (status,)
+    elif key == 'stat':
+      assert(value in Stat.OPTIONS), 'Unexpected stat: %s' % (value,)
   move_data[int(row[0])] = move
