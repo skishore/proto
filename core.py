@@ -36,7 +36,7 @@ class Core(object):
     '''
     speeds = defaultdict(list)
     for (index, pokemon) in battle.pokemon.iteritems():
-      speeds[pokemon.spe].append(index)
+      speeds[pokemon.stat('spe')].append(index)
     for (speed, indices) in speeds.iteritems():
       speeds[speed] = sample(indices, len(indices))
     return sum((
@@ -180,4 +180,7 @@ class Status(object):
         pokemon.status = None
         return (['%s is frozen no more!' % (name,)], True)
       return (['%s is still frozen!' % (name,)], False)
+    elif pokemon.status == 'paralyze':
+      if uniform(0, 1) < 0.25:
+        return (['%s is fully paralyzed!' % (name,)], False)
     return (None, True)

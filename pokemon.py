@@ -41,7 +41,9 @@ class Pokemon(object):
   def stat(self, stat):
     value = getattr(self, stat)
     if stat == 'atk' and self.status == 'burn':
-      return value/2
+      return int(0.50*value)
+    elif stat == 'spe' and self.status == 'paralyze':
+      return int(0.75*value)
     return value
 
   @staticmethod

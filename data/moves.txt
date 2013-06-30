@@ -9,7 +9,7 @@
 #6,Pay Day,100,40,20,NORMAL
 7,Fire Punch,100,75,15,FIRE,{"burn_rate": 0.10}
 8,Ice Punch,100,75,15,ICE,{"freeze_rate": 0.10}
-#9,Thunder Punch,100,75,15,ELECTRIC
+9,Thunder Punch,100,75,15,ELECTRIC,{"paralyze_rate": 0.10}
 10,Scratch,100,40,35,NORMAL
 11,Vice-Grip,100,55,30,NORMAL
 #12,Guillotine,30,1,5,NORMAL
