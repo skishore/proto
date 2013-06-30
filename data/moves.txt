@@ -38,7 +38,7 @@
 #35,Wrap,90,15,20,NORMAL
 36,Take Down,85,90,20,NORMAL,{"post_move_hook": {"type": "recoil", "ratio": 0.25}}
 #37,Thrash,100,120,10,NORMAL
-#38,Double-Edge,100,120,15,NORMAL
+38,Double-Edge,100,120,15,NORMAL,{"post_move_hook": {"type": "recoil", "ratio": 0.25}}
 39,Tail Whip,100,0,30,NORMAL,{"move_type": "buff", "stat": "defense", "stages": -1}
 40,Poison Sting,100,15,35,POISON,{"poison_rate": 0.10}
 41,Twineedle,100,25,20,BUG,{"move_type": "multihit", "num_hits": 2, "poison_rate": 0.20}

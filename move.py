@@ -65,7 +65,7 @@ class Move(object):
           (callback, _) = self.execute_multihit(battle, user_id, target_id, cur_hit, num_hits)
         callback = self.get_secondary_effect(battle, target_id, target, callback=callback)
         return (Callbacks.do_damage(battle, target_id, damage, message, callback=callback), {
-          'damage': damage
+          'damage': min(damage, target.cur_hp),
         })
       else:
         return self.execute_miss(battle, user_id, target_id)

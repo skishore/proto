@@ -178,10 +178,10 @@ for line in raw_move_data.split('\r\n')[:-1]:
       'post_move_hook',
       'power',
       'priority',
-      'target',
-      'stat',
       'stages',
+      'stat',
       'status',
+      'target',
     ):
       assert(key.endswith('_rate')), 'Unexpected key: %s' % (key,)
       status = key[:-5]
