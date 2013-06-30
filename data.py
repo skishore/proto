@@ -1,5 +1,67 @@
 import json
 
+#----- A bunch of enumerations. ------#
+
+class Stat(object):
+  HP = 'hp'
+  ATTACK = 'attack'
+  DEFENSE = 'defense'
+  SPECIAL_ATTACK = 'special attack'
+  SPECIAL_DEFENSE = 'special defense'
+  SPEED = 'speed'
+  ACCURACY = 'accuracy'
+  EVASION = 'evasion'
+
+  OPTIONS = (
+    HP,
+    ATTACK,
+    DEFENSE,
+    SPECIAL_ATTACK,
+    SPECIAL_DEFENSE,
+    SPEED,
+    ACCURACY,
+    EVASION,
+  )
+
+
+class Status(object):
+  BURN = 'burn'
+  POISON = 'poison'
+  PARALYZE = 'paralyze'
+  FREEZE = 'freeze'
+  SLEEP = 'sleep'
+  FLINCH = 'flinch'
+
+  OPTIONS = (
+    BURN,
+    POISON,
+    PARALYZE,
+    FREEZE,
+    SLEEP,
+    FLINCH,
+  )
+
+  SOFT_STATUSES = (
+    FLINCH,
+  )
+
+  MARKS = {
+    BURN: 'B',
+    POISON: 'P',
+    PARALYZE: 'R',
+    FREEZE: 'F',
+    SLEEP: 'S',
+  }
+
+  VERBS = {
+    BURN: 'was burned',
+    POISON: 'was poisoned',
+    PARALYZE: 'was paralyzed',
+    FREEZE: 'was frozen solid',
+    SLEEP: 'fell asleep',
+    FLINCH: 'flinched',
+  }
+
 #------ Parse the type data from types.txt. -------#
 
 num_types = 17
@@ -89,7 +151,7 @@ for line in raw_move_data.split('\r\n')[:-1]:
     continue
   row = line.split(',')
   assert(row[5] in types), 'Unexpected type: %s' % (row[5],)
-  move_data[int(row[0])] = {
+  move = {
     'name': row[1].upper(),
     'accuracy': int(row[2]),
     'power': int(row[3]),
@@ -97,65 +159,10 @@ for line in raw_move_data.split('\r\n')[:-1]:
     'type': row[5],
     'extra': json.loads(','.join(row[6:])) if len(row) > 6 else {}
   }
-
-#----- A bunch of enumerations. ------#
-
-class Stat(object):
-  HP = 'hp'
-  ATTACK = 'attack'
-  DEFENSE = 'defense'
-  SPECIAL_ATTACK = 'special attack'
-  SPECIAL_DEFENSE = 'special defense'
-  SPEED = 'speed'
-  ACCURACY = 'accuracy'
-  EVASION = 'evasion'
-
-  OPTIONS = (
-    HP,
-    ATTACK,
-    DEFENSE,
-    SPECIAL_ATTACK,
-    SPECIAL_DEFENSE,
-    SPEED,
-    ACCURACY,
-    EVASION,
-  )
-
-
-class Status(object):
-  BURN = 'burn'
-  POISON = 'poison'
-  PARALYZE = 'paralyze'
-  FREEZE = 'freeze'
-  SLEEP = 'sleep'
-  FLINCH = 'flinch'
-
-  OPTIONS = (
-    BURN,
-    POISON,
-    PARALYZE,
-    FREEZE,
-    SLEEP,
-    FLINCH,
-  )
-
-  SOFT_STATUSES = (
-    FLINCH,
-  )
-
-  MARKS = {
-    BURN: 'B',
-    POISON: 'P',
-    PARALYZE: 'R',
-    FREEZE: 'F',
-    SLEEP: 'S',
-  }
-
-  VERBS = {
-    BURN: 'was burned',
-    POISON: 'was poisoned',
-    PARALYZE: 'was paralyzed',
-    FREEZE: 'was frozen solid',
-    SLEEP: 'fell asleep',
-    FLINCH: 'flinched',
-  }
+  for (key, value) in move['extra'].iteritems():
+    if key not in ('move_type', 'miss_penalty', 'num_hits', 'target', 'stat', 'stages'):
+      assert(key.endswith('_rate')), 'Unexpected key: %s' % (key,)
+      status = key[:-5]
+      if status not in ('crit',):
+        assert(status in Status.OPTIONS), 'Unexpected status: %s' % (status,)
+  move_data[int(row[0])] = move
