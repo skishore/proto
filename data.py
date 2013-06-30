@@ -183,9 +183,14 @@ for line in raw_move_data.split('\r\n')[:-1]:
       status = key[:-5]
       if status not in ('crit', 'stat'):
         assert(status in Status.OPTIONS), 'Unexpected status: %s' % (status,)
-    elif key == 'stat':
-      assert(value in Stat.OPTIONS), 'Unexpected stat: %s' % (value,)
+    if key == 'stat':
+      if isinstance(value, list):
+        assert(all(v in Stat.OPTIONS for v in value)), 'Unexpected stat: %s' % (value,)
+      else:
+        assert(value in Stat.OPTIONS), 'Unexpected stat: %s' % (value,)
     if key == 'stat_rate' or (key == 'move_type' and value == 'buff'):
       assert('stat' in move['extra'] and 'stages' in move['extra']), \
         'Unexpected extras dict: %s' % (move['extra'],)
+    if key == 'target':
+      assert(value in ('self',))
   move_data[int(row[0])] = move

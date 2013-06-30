@@ -136,15 +136,20 @@ class Callbacks(object):
 
   @staticmethod
   def do_buff(battle, target_id, stat, stages, callback=None):
+    stats = stat if isinstance(stat, list) else [stat]
     def update(battle, choices):
       target = battle.get_pokemon(target_id)
-      cur_stage = target.soft_status.get(stat, 0)
-      new_stage = max(min(cur_stage + stages, Callbacks.max_buff), -Callbacks.max_buff)
-      if new_stage != cur_stage:
-        target.soft_status[stat] = new_stage
+      updates = []
+      for stat in stats:
+        cur_stage = target.soft_status.get(stat, 0)
+        new_stage = max(min(cur_stage + stages, Callbacks.max_buff), -Callbacks.max_buff)
+        if new_stage != cur_stage:
+          target.soft_status[stat] = new_stage
+          updates.append(stat)
+      if updates:
         return {'menu': ["%s's %s %s%s!" % (
           battle.get_name(target_id),
-          stat,
+          ' and '.join(updates),
           'rose' if stages > 0 else 'fell',
           ' sharply' if abs(stages) > 1 else '',
         )], 'callback': callback}

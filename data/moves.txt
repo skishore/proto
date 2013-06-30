@@ -70,11 +70,11 @@
 67,Low Kick,100,50,20,FIGHTING,{"flinch_rate": 0.30}
 #68,Counter,100,1,20,FIGHTING
 69,Seismic Toss,100,1,20,FIGHTING,{"damage": "level"}
-#70,Strength,100,80,15,NORMAL
+70,Strength,100,80,15,NORMAL
 #71,Absorb,100,20,25,GRASS
 #72,Mega Drain,100,40,15,GRASS
 #73,Leech Seed,90,0,10,GRASS
-#74,Growth,101,0,40,NORMAL
+74,Growth,101,0,40,NORMAL,{"move_type": "buff", "stat": ["attack", "special attack"], "stages": 1, "target": "self"}
 #75,Razor Leaf,95,55,25,GRASS
 #76,SolarBeam,100,120,10,GRASS
 #77,PoisonPowder,75,0,35,POISON
