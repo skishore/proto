@@ -1,5 +1,6 @@
 from collections import defaultdict
 from random import (
+  randint,
   sample,
   uniform,
 )
@@ -125,7 +126,7 @@ class Callbacks(object):
     def update(battle, choices):
       menu = ['%s %s!' % (battle.get_name(target_id), Status.verbs[status])]
       def inner_update(battle, choices):
-        battle.get_pokemon(target_id).status = status
+        Status.set_status(battle.get_pokemon(target_id), status)
         return {'callback': callback}
       return {'menu': menu, 'callback': inner_update}
     return update
@@ -167,6 +168,17 @@ class Status(object):
     return Callbacks.do_damage(battle, index, damage, '', special=special)
 
   @staticmethod
+  def set_status(pokemon, status):
+    pokemon.status = status
+    if status == 'sleep':
+      pokemon.soft_status['sleep_turns'] = randint(1, 7)
+
+  @staticmethod
+  def clear_status(pokemon):
+    pokemon.status = None
+    pokemon.soft_status.pop('sleep_turns', None)
+
+  @staticmethod
   def transition(battle, index, pokemon):
     '''
     Transitions the status of a Pokemon with a status ailment. Returns a (menu, move)
@@ -174,10 +186,14 @@ class Status(object):
     '''
     name = battle.get_name(index)
     if pokemon.status == 'sleep':
+      pokemon.soft_status['sleep_turns'] -= 1
+      if not pokemon.soft_status['sleep_turns']:
+        Status.clear_status(pokemon)
+        return (['%s woke up!' % (name,)], False)
       return (['%s was fast asleep!' % (name,)], False)
     elif pokemon.status == 'freeze':
       if uniform(0, 1) < 0.20:
-        pokemon.status = None
+        Status.clear_status(pokemon)
         return (['%s is frozen no more!' % (name,)], True)
       return (['%s is still frozen!' % (name,)], False)
     elif pokemon.status == 'paralyze':

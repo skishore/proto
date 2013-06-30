@@ -17,6 +17,7 @@ class Pokemon(object):
     self.name = pokedex_data[num]['name']
     self.types = pokedex_data[num]['types']
     self.status = None
+    self.soft_status = {}
     self.compute_stats()
 
   def compute_stats(self):
