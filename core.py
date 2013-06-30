@@ -139,14 +139,14 @@ class Callbacks(object):
     def update(battle, choices):
       target = battle.get_pokemon(target_id)
       cur_stage = target.soft_status.get(stat, 0)
-      if cur_stage < Callbacks.max_buff:
-        target.soft_status[stat] = min(cur_stage + stages, Callbacks.max_buff)
-        stat_name = stat_names[stat]
-        modifier = ' sharply' if stages > 1 else ''
-        return {'menu': ["%s's %s rose%s!" % (
+      new_stage = max(min(cur_stage + stages, Callbacks.max_buff), -Callbacks.max_buff)
+      if new_stage != cur_stage:
+        target.soft_status[stat] = new_stage
+        return {'menu': ["%s's %s %s%s!" % (
           battle.get_name(target_id),
-          stat_name,
-          modifier,
+          stat_names[stat],
+          'rose' if stages > 0 else 'fell',
+          ' sharply' if abs(stages) > 1 else '',
         )]}
       return {'menu': ['But it failed!']}
     return update
