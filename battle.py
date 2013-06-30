@@ -41,6 +41,12 @@ class Battle(object):
   def get_pokemon(self, index):
     return self.pokemon[tuple(index)]
 
+  def get_pokemon_by_sess_id(self, sess_id):
+    for (index, pokemon) in self.pokemon.iteritems():
+      if pokemon.sess_id == sess_id:
+        return (index, pokemon)
+    return (None, None)
+
   def add_pokemon(self, index, pokemon):
     pokemon.sess_id = self.sessions
     self.sessions += 1

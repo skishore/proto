@@ -209,9 +209,9 @@
 206,False Swipe,100,40,40,NORMAL,{"damage_rule": "false_swipe"}
 207,Swagger,90,0,15,NORMAL,{"move_type": "buff", "stat": "attack", "stages": 2, "confuse_rate": 1.0}
 #208,Milk Drink,101,0,10,NORMAL
-#209,Spark,100,65,20,ELECTRIC
+209,Spark,100,65,20,ELECTRIC,{"paralyze_rate": 0.30}
 #210,Fury Cutter,95,20,20,BUG
-#211,Steel Wing,90,70,25,STEEL
+211,Steel Wing,90,70,25,STEEL,{"post_move_hook": {"type": "buff", "rate": 0.10, "stat": "defense", "stages": 1}}
 #212,Mean Look,101,0,5,NORMAL
 #213,Attract,100,0,15,NORMAL
 #214,Sleep Talk,101,0,10,NORMAL

@@ -42,12 +42,13 @@ class Move(object):
   def execute(self, battle, user_id, target_id):
     menu = ['%s used %s!' % (battle.get_name(user_id), self.name)]
     move_type = self.extra.get('move_type', 'default')
-    callback = getattr(self, 'execute_' + move_type)(battle, user_id, target_id)
-    return {'menu': menu, 'callback': callback}
+    (callback, success) = getattr(self, 'execute_' + move_type)(battle, user_id, target_id)
+    return {'menu': menu, 'callback': callback, 'success': success}
 
   '''
-  Move execution methods begin here. All move execution methods should return
-  a callback to be executed after the '<user> used <move>!' text is shown.
+  Move execution methods begin here. All move execution methods should return a pair:
+    - a callback to be executed after the '<user> used <move>!' text is shown.
+    - a success flag, which determines whether or not the post-move hook should be executed.
   '''
 
   def execute_default(self, battle, user_id, target_id, cur_hit=0, num_hits=0):
@@ -61,9 +62,9 @@ class Move(object):
         (damage, message) = self.compute_damage(battle, user, target, cur_hit)
         callback = None
         if num_hits:
-          callback = self.execute_multihit(battle, user_id, target_id, cur_hit, num_hits)
+          (callback, _) = self.execute_multihit(battle, user_id, target_id, cur_hit, num_hits)
         callback = self.get_secondary_effect(battle, target_id, target, callback=callback)
-        return Callbacks.do_damage(battle, target_id, damage, message, callback=callback)
+        return (Callbacks.do_damage(battle, target_id, damage, message, callback=callback), True)
       else:
         return self.execute_miss(battle, user_id, target_id)
     else:
@@ -91,7 +92,7 @@ class Move(object):
         return self.execute_miss(battle, user_id, target_id, message=message)
     if cur_hit < num_hits:
       return self.execute_default(battle, user_id, target_id, cur_hit + 1, num_hits)
-    return Callbacks.chain({'menu': ['Hit %s times!' % (num_hits,)]})
+    return (Callbacks.chain({'menu': ['Hit %s times!' % (num_hits,)]}), True)
 
   def execute_miss(self, battle, user_id, target_id, message=None):
     message = message or 'But it missed!'
@@ -99,8 +100,8 @@ class Move(object):
       user = battle.get_pokemon(user_id)
       (damage, _) = self.compute_damage(battle, user, battle.get_pokemon(target_id))
       damage = int(damage*self.extra['miss_penalty'])
-      return Callbacks.do_damage(battle, user_id, damage, message, special=' instead')
-    return Callbacks.chain({'menu': [message or 'But it missed!']})
+      return (Callbacks.do_damage(battle, user_id, damage, message, special=' instead'), False)
+    return (Callbacks.chain({'menu': [message or 'But it missed!']}), False)
 
   def execute_buff(self, battle, user_id, target_id):
     (stat, stages) = (self.extra['stat'], self.extra['stages'])
@@ -113,7 +114,7 @@ class Move(object):
       if not self.hits(battle, user, target):
         return self.execute_miss(battle, user_id, target_id)
     callback = self.get_secondary_effect(battle, target_id, target)
-    return Callbacks.do_buff(battle, target_id, stat, stages, callback=callback)
+    return (Callbacks.do_buff(battle, target_id, stat, stages, callback=callback), True)
 
   def execute_status(self, battle, user_id, target_id):
     status = self.extra['status']
@@ -121,11 +122,11 @@ class Move(object):
     user = battle.get_pokemon(user_id)
     target = battle.get_pokemon(target_id)
     if self.hits(battle, user, target):
-      return Callbacks.set_status(battle, target_id, status, self, noisy_failure=True)
+      return (Callbacks.set_status(battle, target_id, status, self, noisy_failure=True), True)
     return self.execute_miss(battle, user_id, target_id)
 
   def execute_failure(self, battle, user_id, target_id):
-    return Callbacks.chain({'menu': ['Nothing happened...']})
+    return (Callbacks.chain({'menu': ['Nothing happened...']}), False)
 
   '''
   Auxilary methods that perform damage computation, etc. begin here.
@@ -205,6 +206,15 @@ class Move(object):
         if uniform(0, total_mass) < rate:
           return Callbacks.set_status(battle, target_id, status, self, callback=callback)
         total_mass -= rate
+    return callback
+
+  def post_move_hook(self, battle, user_id, callback=None):
+    if 'post_move_hook' in self.extra:
+      hook = self.extra.get('post_move_hook')
+      assert(hook['type'] == 'buff'), 'Unexpected hook %s' % (hook,)
+      if uniform(0, 1) < hook['rate']:
+        (stat, stages) = (hook['stat'], hook['stages'])
+        return Callbacks.do_buff(battle, user_id, stat, stages, callback=callback)
     return callback
 
   @staticmethod

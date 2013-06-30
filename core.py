@@ -32,7 +32,9 @@ class Core(object):
         choice = choices.pop(index)
         sess_id = battle.get_pokemon(index).sess_id
         result = Core.try_to_move(battle, index, choice)
-        result['last_callback'] = Core.post_move_hook(sess_id)
+        result['last_callback'] = Core.get_last_callback(
+          battle, sess_id, choice, result.get('success')
+        )
         return result
 
   @staticmethod
@@ -62,22 +64,25 @@ class Core(object):
     assert(choice['type'] == 'move')
     pokemon = battle.get_pokemon(index)
     move = choice['move'].execute(battle, index, choice.get('target_id'))
-    return StatusEffects.transition(battle, index, pokemon, default=move)
+    result = StatusEffects.transition(battle, index, pokemon, default=move)
+    result['success'] = move.get('success')
+    return result
 
   @staticmethod
-  def post_move_hook(sess_id):
+  def get_last_callback(battle, sess_id, choice, move_successful):
     '''
     Get a callback to execute after this Pokemon moves, for example, burn damage.
     This callback will be executed even if the move's target faints.
     '''
-    def update(battle, choices):
-      for (index, pokemon) in battle.pokemon.iteritems():
-        if pokemon.sess_id == sess_id:
-          break
-      else:
-        return
-      return StatusEffects.apply_update(battle, choices, index, pokemon)
-    return update
+    def callback(battle, choices):
+      (index, pokemon) = battle.get_pokemon_by_sess_id(sess_id)
+      if index:
+        return StatusEffects.apply_update(battle, choices, index, pokemon)
+    if 'move' in choice and move_successful:
+      (index, pokemon) = battle.get_pokemon_by_sess_id(sess_id)
+      if index:
+        callback = choice['move'].post_move_hook(battle, index, callback=callback)
+    return callback
 
 
 class Callbacks(object):
