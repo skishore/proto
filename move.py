@@ -64,8 +64,7 @@ class Move(object):
         menu = ["It didn't affect %s!" % (battle.get_name(target_id, lower=True),)]
         return Callbacks.chain({'menu': menu})
     else:
-      menu = ['It missed %s!' % (battle.get_name(target_id, lower=True),)]
-      return Callbacks.chain({'menu': menu})
+      return Callbacks.chain({'menu': ['But it missed!']})
 
   def execute_multihit(self, battle, user_id, target_id, cur_hit=0, num_hits=0):
     '''
@@ -75,11 +74,14 @@ class Move(object):
       user = battle.get_pokemon(user_id)
       target = battle.get_pokemon(target_id)
       if self.hits(battle, user, target):
-        hits_map = {0: 2, 1: 2, 2: 2, 3: 3, 4: 3, 5: 3, 6: 4, 7: 5}
-        num_hits = hits_map[randrange(8)]
+        if self.get_type_advantage(target):
+          hits_map = {0: 2, 1: 2, 2: 2, 3: 3, 4: 3, 5: 3, 6: 4, 7: 5}
+          num_hits = hits_map[randrange(8)]
+        else:
+          menu = ["It didn't affect %s!" % (battle.get_name(target_id, lower=True),)]
+          return Callbacks.chain({'menu': menu})
       else:
-        menu = ['It missed %s!' % (battle.get_name(target_id, lower=True),)]
-        return Callbacks.chain({'menu': menu})
+        return Callbacks.chain({'menu': ['But it missed!']})
     if cur_hit < num_hits:
       return self.execute_default(battle, user_id, target_id, cur_hit + 1, num_hits)
     return Callbacks.chain({'menu': ['Hit %s times!' % (num_hits,)]})
