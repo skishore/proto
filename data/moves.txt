@@ -28,7 +28,7 @@
 25,Mega Kick,75,120,5,NORMAL
 26,Jump Kick,95,100,10,FIGHTING,{"miss_penalty": true}
 #27,Rolling Kick,85,60,15,FIGHTING
-#28,Sand-Attack,100,0,15,GROUND
+28,Sand-Attack,100,0,15,GROUND,{"move_type": "buff", "stat": "acc", "stages": -1}
 #29,Headbutt,100,70,15,NORMAL
 #30,Horn Attack,100,65,25,NORMAL
 #31,Fury Attack,85,15,20,NORMAL

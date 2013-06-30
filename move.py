@@ -104,10 +104,13 @@ class Move(object):
 
   def execute_buff(self, battle, user_id, target_id):
     (stat, stages) = (self.extra['stat'], self.extra['stages'])
-    user = battle.get_pokemon(user_id)
-    assert(stat in (user.stats + ('acc', 'eva')) and stages in (1, 2)), \
+    target_id = user_id if self.extra.get('target') == 'self' else target_id
+    target = battle.get_pokemon(target_id)
+    assert(self.extra.get('target') == 'self' or stages < 0), \
+      'Unexpeced buff on enemy: %s' % (self.name,)
+    assert(stat in (target.stats + ('acc', 'eva')) and abs(stages) in (1, 2)), \
       'Unexpected buff: (%s, %s)' % (stat, stages)
-    return Callbacks.do_buff(battle, user_id, stat, stages)
+    return Callbacks.do_buff(battle, target_id, stat, stages)
 
   '''
   Auxilary methods that perform damage computation, etc. begin here.
@@ -151,7 +154,7 @@ class Move(object):
     return ''
 
   def hits(self, battle, user, target):
-    return uniform(0, 100) < self.accuracy
+    return uniform(0, 100) < self.accuracy*user.stat('acc')/target.stat('eva')
 
   def get_status_callback(self, battle, target_id, target, callback):
     if target.status:
