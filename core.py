@@ -166,7 +166,7 @@ class StatusEffects(object):
     pokemon = battle.get_pokemon(target_id)
     if status in Status.SOFT_STATUSES:
       assert(status == Status.FLINCH), 'Soft status %s is not implemented' % (status,)
-      if target_id in choices:
+      if target_id in choices and pokemon.status not in (Status.SLEEP, Status.FREEZE):
         del choices[target_id]
         return True
       return False
@@ -217,7 +217,7 @@ class StatusEffects(object):
     elif pokemon.status == Status.FREEZE:
       if uniform(0, 1) < 0.20:
         StatusEffects.clear_status(pokemon)
-        return (['%s is frozen no more!' % (name,)], True)
+        return (['%s is frozen no more!' % (name,)], False)
       return (['%s is still frozen!' % (name,)], False)
     elif pokemon.status == Status.PARALYZE:
       if uniform(0, 1) < 0.25:
