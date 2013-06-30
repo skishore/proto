@@ -1,5 +1,8 @@
 from collections import defaultdict
-from random import sample
+from random import (
+  sample,
+  uniform,
+)
 
 from battle_animations import (
   FaintPokemon,
@@ -22,8 +25,7 @@ class Core(object):
       if index in choices:
         choice = choices.pop(index)
         sess_id = battle.get_pokemon(index).sess_id
-        assert(choice['type'] == 'move')
-        result = choice['move'].execute(battle, index, choice.get('target_id'))
+        result = Core.try_to_move(battle, index, choice)
         result['last_callback'] = Core.post_move_hook(sess_id)
         return result
 
@@ -43,7 +45,28 @@ class Core(object):
     ), [])
 
   @staticmethod
+  def try_to_move(battle, index, choice):
+    '''
+    The Pokemon with the given index tries to move. If they are prevented from
+    moving (for example, due to a status ailment), a message is shown instead.
+    '''
+    assert(choice['type'] == 'move')
+    pokemon = battle.get_pokemon(index)
+    (menu, can_move) = Status.transition(battle, index, pokemon)
+    result = {'menu': menu}
+    if can_move:
+      move = choice['move'].execute(battle, index, choice.get('target_id'))
+      if not menu:
+        return move
+      result['callback'] = lambda battle, choices: move
+    return result
+
+  @staticmethod
   def post_move_hook(sess_id):
+    '''
+    Get a callback to execute after this Pokemon moves, for example, burn damage.
+    This callback will be executed even if the move's target faints.
+    '''
     def update(battle, choices):
       for (index, pokemon) in battle.pokemon.iteritems():
         if pokemon.sess_id == sess_id:
@@ -126,7 +149,7 @@ class Status(object):
 
   @staticmethod
   def apply_update(battle, choices, index, pokemon):
-    if pokemon.status:
+    if pokemon.status and hasattr(Status, 'apply_' + pokemon.status):
       callback = getattr(Status, 'apply_' + pokemon.status)(battle, index, pokemon)
       return callback(battle, choices)
     return None
@@ -142,3 +165,19 @@ class Status(object):
     damage = pokemon.max_hp/8
     special = ' from poison'
     return Callbacks.do_damage(battle, index, damage, '', special=special)
+
+  @staticmethod
+  def transition(battle, index, pokemon):
+    '''
+    Transitions the status of a Pokemon with a status ailment. Returns a (menu, move)
+    pair - the menu is a message to show, while move is True if the Pokemon can move.
+    '''
+    name = battle.get_name(index)
+    if pokemon.status == 'sleep':
+      return (['%s was fast asleep!' % (name,)], False)
+    elif pokemon.status == 'freeze':
+      if uniform(0, 1) < 0.20:
+        pokemon.status = None
+        return (['%s is frozen no more!' % (name,)], True)
+      return (['%s is still frozen!' % (name,)], False)
+    return (None, True)
