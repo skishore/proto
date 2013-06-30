@@ -225,7 +225,7 @@
 #222,Magnitude,100,1,30,GROUND
 223,Dynamic Punch,50,100,5,FIGHTING,{"confuse_rate": 1.00}
 224,Megahorn,85,120,10,BUG
-225,Dragon Breath,100,60,20,DRAGON,{"paralyze_rate": 0.30}
+225,DragonBreath,100,60,20,DRAGON,{"paralyze_rate": 0.30}
 #226,Baton Pass,101,0,40,NORMAL
 #227,Encore,100,0,5,NORMAL
 #228,Pursuit,100,40,20,DARK
@@ -245,11 +245,11 @@
 242,Crunch,100,80,15,DARK,{"stat_rate": 0.20, "stat": "special defense", "stages": -1}
 #243,Mirror Coat,100,1,20,PSYCHIC
 #244,Psych Up,101,0,10,NORMAL
-245,Extreme Speed,100,80,5,NORMAL,{"priority": 2}
+245,ExtremeSpeed,100,80,5,NORMAL,{"priority": 2}
 246,AncientPower,100,60,5,ROCK,{"post_move_hook": {"type": "buff", "rate": 0.10, "stat": ["attack", "defense", "special attack", "special defense", "speed"], "stages": 1}}
-#247,Shadow Ball,100,80,15,GHOST
+247,Shadow Ball,100,80,15,GHOST,{"stat_rate": 0.20, "stat": "special defense", "stages": -1}
 #248,Future Sight,100,100,10,PSYCHIC
-#249,Rock Smash,100,40,15,FIGHTING
+249,Rock Smash,100,40,15,FIGHTING,{"stat_rate": 0.50, "stat": "defense", "stages": -1}
 #250,Whirlpool,85,35,15,WATER
 #251,Beat Up,100,1,10,DARK
 #252,Fake Out,100,40,10,NORMAL
@@ -261,7 +261,7 @@
 #258,Hail,101,0,10,ICE
 #259,Torment,100,0,15,DARK
 #260,Flatter,100,0,15,DARK
-#261,Will-O-Wisp,75,0,15,FIRE
+261,Will-O-Wisp,75,0,15,FIRE,{"move_type": "status", "status": "burn"}
 #262,Memento,100,0,10,DARK
 #263,Facade,100,70,20,NORMAL
 #264,Focus Punch,100,150,20,FIGHTING
