@@ -9,6 +9,7 @@ from battle_animations import (
   FaintPokemon,
   FlashPokemon,
 )
+from data import stat_names
 
 
 class Core(object):
@@ -83,6 +84,8 @@ class Callbacks(object):
   This class defines a number of static methods that return battle updates.
   These updates are functions with the same signature as Core.execute.
   '''
+  max_buff = 6
+
   @staticmethod
   def do_damage(battle, target_id, damage, message, callback=None, special=''):
     def update(battle, choices):
@@ -122,13 +125,30 @@ class Callbacks(object):
     return lambda battle, choices: display
 
   @staticmethod
-  def apply_status(battle, target_id, status, callback=None):
+  def set_status(battle, target_id, status, callback=None):
     def update(battle, choices):
       menu = ['%s %s!' % (battle.get_name(target_id), Status.verbs[status])]
       def inner_update(battle, choices):
         Status.set_status(battle.get_pokemon(target_id), status)
         return {'callback': callback}
       return {'menu': menu, 'callback': inner_update}
+    return update
+
+  @staticmethod
+  def do_buff(battle, target_id, stat, stages):
+    def update(battle, choices):
+      target = battle.get_pokemon(target_id)
+      cur_stage = target.soft_status.get(stat, 0)
+      if cur_stage < Callbacks.max_buff:
+        target.soft_status[stat] = min(cur_stage + stages, Callbacks.max_buff)
+        stat_name = stat_names[stat]
+        modifier = ' sharply' if stages > 1 else ''
+        return {'menu': ["%s's %s rose%s!" % (
+          battle.get_name(target_id),
+          stat_name,
+          modifier,
+        )]}
+      return {'menu': ['But it failed!']}
     return update
 
 

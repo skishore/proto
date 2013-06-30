@@ -97,3 +97,15 @@ for line in raw_move_data.split('\r\n')[:-1]:
     'type': row[5],
     'extra': json.loads(','.join(row[6:])) if len(row) > 6 else {}
   }
+
+#------ Generate a list of human-readable stat names. ------#
+
+stat_names = {
+  'atk': 'attack',
+  'dfn': 'defense',
+  'spa': 'special attack',
+  'spd': 'special defense',
+  'spe': 'speed',
+  'acc': 'accuracy',
+  'eva': 'evasion',
+}

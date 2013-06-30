@@ -11,6 +11,15 @@ num_pokemon = 251
 class Pokemon(object):
   stats = ('hp', 'atk', 'dfn', 'spa', 'spd', 'spe')
 
+  # Set up stat multipliers based on the number of stages of buff.
+  default_buffs = {}
+  accuracy_buffs = {}
+  for i in range(0, 7):
+    default_buffs[i] = (2.0 + i)/2
+    default_buffs[-i] = 2.0/(2 + i)
+    accuracy_buffs[i] = (3.0 + i)/3
+    accuracy_buffs[-i] = 3.0/(3 + i)
+
   def __init__(self, num, level=1):
     self.num = num
     self.level = level
@@ -40,12 +49,17 @@ class Pokemon(object):
     return level_multiplier*self.level
 
   def stat(self, stat):
-    value = getattr(self, stat)
-    if stat == 'atk' and self.status == 'burn':
-      return int(0.50*value)
-    elif stat == 'spe' and self.status == 'paralyze':
-      return int(0.75*value)
-    return value
+    if stat in self.stats:
+      value = getattr(self, stat)
+      value *= self.default_buffs[self.soft_status.get(stat, 0)]
+      if stat == 'atk' and self.status == 'burn':
+        return int(0.50*value)
+      elif stat == 'spe' and self.status == 'paralyze':
+        return int(0.75*value)
+      return value
+    else:
+      assert(stat in ('acc', 'eva'))
+      return self.accuracy_buffs[self.soft_status.get(stat, 0)]
 
   @staticmethod
   def random_pokemon(side):

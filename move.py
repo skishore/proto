@@ -31,9 +31,14 @@ class Move(object):
   def get_target_ids(self, battle, index):
     # A placeholder implementation of a damaging, single-target move.
     # Some moves might target user pokemon, or have no target at all.
-    if index[0] == 'npc':
-      return [('pc', i) for i in range(battle.num_pcs)]
-    return [('npc', i) for i in range(battle.num_npcs)]
+    target = self.extra.get('target', 'default')
+    if target == 'default':
+      if index[0] == 'npc':
+        return [('pc', i) for i in range(battle.num_pcs)]
+      return [('npc', i) for i in range(battle.num_npcs)]
+    elif target == 'self':
+      return []
+    assert(False), 'Unexpected target: %s' % (target,)
 
   def execute(self, battle, user_id, target_id):
     menu = ['%s used %s!' % (battle.get_name(user_id), self.name)]
@@ -97,6 +102,13 @@ class Move(object):
       return Callbacks.do_damage(battle, user_id, damage, message, special=' instead')
     return Callbacks.chain({'menu': [message or 'But it missed!']})
 
+  def execute_buff(self, battle, user_id, target_id):
+    (stat, stages) = (self.extra['stat'], self.extra['stages'])
+    user = battle.get_pokemon(user_id)
+    assert(stat in (user.stats + ('acc', 'eva')) and stages in (1, 2)), \
+      'Unexpected buff: (%s, %s)' % (stat, stages)
+    return Callbacks.do_buff(battle, user_id, stat, stages)
+
   '''
   Auxilary methods that perform damage computation, etc. begin here.
   '''
@@ -147,7 +159,7 @@ class Move(object):
     for status in Status.verbs:
       rate = self.extra.get(status + '_rate')
       if rate and uniform(0, 1) < rate:
-        return Callbacks.apply_status(battle, target_id, status, callback)
+        return Callbacks.set_status(battle, target_id, status, callback)
     return callback
 
   @staticmethod

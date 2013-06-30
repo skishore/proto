@@ -14,7 +14,7 @@
 11,Vice-Grip,100,55,30,NORMAL
 #12,Guillotine,30,1,5,NORMAL
 #13,Razor Wind,100,80,10,NORMAL
-#14,Swords Dance,101,0,30,NORMAL
+14,Swords Dance,101,0,30,NORMAL,{"move_type": "buff", "stat": "atk", "stages": 2, "target": "self"}
 15,Cut,95,50,30,NORMAL
 16,Gust,100,40,35,FLYING
 17,Wing Attack,100,60,35,FLYING
