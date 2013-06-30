@@ -191,7 +191,9 @@ for line in raw_move_data.split('\r\n')[:-1]:
         'Unexpected move type: %s' % (value,)
     if key == 'stages':
       assert(abs(value) in (1, 2)), 'Unexpected stages: %s' % (value,)
-      assert((value > 0) == (move['extra'].get('target') == 'self'))
+      if ((value < 0) == (move['extra'].get('target') == 'self')):
+        assert(move['name'] in ('SWAGGER',)), \
+          'Unexpected backwards move %s' % (move['name'],)
     if key == 'stat':
       if isinstance(value, list):
         assert(all(v in Stat.OPTIONS for v in value)), 'Unexpected stat: %s' % (value,)

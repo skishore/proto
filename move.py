@@ -62,7 +62,7 @@ class Move(object):
         callback = None
         if num_hits:
           callback = self.execute_multihit(battle, user_id, target_id, cur_hit, num_hits)
-        callback = self.get_secondary_effect(battle, target_id, target, callback)
+        callback = self.get_secondary_effect(battle, target_id, target, callback=callback)
         return Callbacks.do_damage(battle, target_id, damage, message, callback=callback)
       else:
         return self.execute_miss(battle, user_id, target_id)
@@ -104,21 +104,16 @@ class Move(object):
 
   def execute_buff(self, battle, user_id, target_id):
     (stat, stages) = (self.extra['stat'], self.extra['stages'])
-    if isinstance(stat, list):
-      assert(all(s in Stat.OPTIONS for s in stat)), 'Unexpected stat: %s' % (stat,)
-    else:
-      assert(stat in Stat.OPTIONS), 'Unexpected stat: %s' % (stat,)
-    assert(abs(stages) in (1, 2)), 'Unexpected stages: %s' % (stages,)
     user = battle.get_pokemon(user_id)
     if self.extra.get('target') == 'self':
       target_id = user_id
       target = user
     else:
-      assert(stages < 0), 'Unexpected buff on enemy: %s' % (self.name,)
       target = battle.get_pokemon(target_id)
       if not self.hits(battle, user, target):
         return self.execute_miss(battle, user_id, target_id)
-    return Callbacks.do_buff(battle, target_id, stat, stages)
+    callback = self.get_secondary_effect(battle, target_id, target)
+    return Callbacks.do_buff(battle, target_id, stat, stages, callback=callback)
 
   def execute_status(self, battle, user_id, target_id):
     status = self.extra['status']
@@ -147,8 +142,9 @@ class Move(object):
     level = float(lvl_multiplier*user.lvl() + 10)/250
     power = cur_hit*self.power if self.extra.get('power') == 'linear' else self.power
     stat_ratio = (
-      float(user.stat(Stat.ATTACK))/target.stat(Stat.DEFENSE) if self.type in Type.PHYSICAL_TYPES else
       float(user.stat(Stat.SPECIAL_ATTACK))/target.stat(Stat.SPECIAL_DEFENSE)
+      if self.type in Type.SPECIAL_TYPES else
+      float(user.stat(Stat.ATTACK))/target.stat(Stat.DEFENSE)
     )
     stab = 1.5 if self.type in user.types else 1
     type_advantage = self.get_type_advantage(target)
@@ -194,7 +190,7 @@ class Move(object):
       return True
     return uniform(0, 100) < self.accuracy*user.stat(Stat.ACCURACY)/target.stat(Stat.EVASION)
 
-  def get_secondary_effect(self, battle, target_id, target, callback):
+  def get_secondary_effect(self, battle, target_id, target, callback=None):
     total_mass = 1.0
     stat_rate = self.extra.get('stat_rate')
     if stat_rate:

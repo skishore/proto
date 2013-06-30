@@ -207,7 +207,7 @@
 204,Charm,100,0,20,NORMAL,{"move_type": "buff", "stat": "attack", "stages": -2}
 #205,Rollout,90,30,20,ROCK
 206,False Swipe,100,40,40,NORMAL,{"damage_rule": "false_swipe"}
-#207,Swagger,90,0,15,NORMAL
+207,Swagger,90,0,15,NORMAL,{"move_type": "buff", "stat": "attack", "stages": 2, "confuse_rate": 1.0}
 #208,Milk Drink,101,0,10,NORMAL
 #209,Spark,100,65,20,ELECTRIC
 #210,Fury Cutter,95,20,20,BUG
