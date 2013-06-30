@@ -47,7 +47,7 @@
 44,Bite,100,60,25,DARK,{"flinch_rate": 0.30}
 45,Growl,100,0,40,NORMAL,{"move_type": "buff", "stat": "attack", "stages": -1}
 #46,Roar,100,0,20,NORMAL
-#47,Sing,55,0,15,NORMAL
+47,Sing,55,0,15,NORMAL,{"move_type": "status", "status": "sleep"}
 #48,Supersonic,55,0,20,NORMAL
 #49,SonicBoom,90,1,20,NORMAL
 #50,Disable,100,0,20,NORMAL

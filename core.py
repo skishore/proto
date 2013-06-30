@@ -128,11 +128,13 @@ class Callbacks(object):
     return lambda battle, choices: display
 
   @staticmethod
-  def set_status(battle, target_id, status, callback=None):
+  def set_status(battle, target_id, status, callback=None, noisy_failure=False):
     def update(battle, choices):
       if StatusEffects.set_status(battle, target_id, status, choices):
         menu = ['%s %s!' % (battle.get_name(target_id), Status.VERBS[status])]
         return {'menu': menu, 'callback': callback}
+      elif noisy_failure:
+        return {'menu': ['But it failed!'], 'callback': callback}
       elif callback:
         return callback(battle, choices)
     return update
@@ -168,7 +170,7 @@ class StatusEffects(object):
         del choices[target_id]
         return True
       return False
-    else:
+    elif not pokemon.status:
       assert(status in Status.OPTIONS), 'Unexpected status: %s' % (status,)
       pokemon.status = status
       if status == Status.SLEEP:

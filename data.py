@@ -160,7 +160,15 @@ for line in raw_move_data.split('\r\n')[:-1]:
     'extra': json.loads(','.join(row[6:])) if len(row) > 6 else {}
   }
   for (key, value) in move['extra'].iteritems():
-    if key not in ('move_type', 'miss_penalty', 'num_hits', 'target', 'stat', 'stages'):
+    if key not in (
+      'move_type',
+      'miss_penalty',
+      'num_hits',
+      'target',
+      'stat',
+      'stages',
+      'status',
+    ):
       assert(key.endswith('_rate')), 'Unexpected key: %s' % (key,)
       status = key[:-5]
       if status not in ('crit',):

@@ -116,6 +116,15 @@ class Move(object):
         return self.execute_miss(battle, user_id, target_id)
     return Callbacks.do_buff(battle, target_id, stat, stages)
 
+  def execute_status(self, battle, user_id, target_id):
+    status = self.extra['status']
+    assert(status in Status.OPTIONS), 'Unexpected status: %s' % (status,)
+    user = battle.get_pokemon(user_id)
+    target = battle.get_pokemon(target_id)
+    if self.hits(battle, user, target):
+      return Callbacks.set_status(battle, target_id, status, noisy_failure=True)
+    return self.execute_miss(battle, user_id, target_id)
+
   '''
   Auxilary methods that perform damage computation, etc. begin here.
   '''
@@ -162,8 +171,6 @@ class Move(object):
 
   def get_secondary_effect(self, battle, target_id, target, callback):
     for status in Status.OPTIONS:
-      if target.status and status not in Status.SOFT_STATUSES:
-        continue
       rate = self.extra.get(status + '_rate')
       if rate and uniform(0, 1) < rate:
         return Callbacks.set_status(battle, target_id, status, callback)
