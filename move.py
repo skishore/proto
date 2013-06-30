@@ -52,8 +52,8 @@ class Move(object):
     '''
     user = battle.get_pokemon(user_id)
     target = battle.get_pokemon(target_id)
-    if num_hits or self.hits(battle, user, target):
-      if self.get_type_advantage(target):
+    if self.get_type_advantage(target):
+      if num_hits or self.hits(battle, user, target):
         (damage, message) = self.compute_damage(battle, user, target)
         callback = None
         if num_hits:
@@ -61,10 +61,10 @@ class Move(object):
         callback = self.get_status_callback(battle, target_id, target, callback)
         return Callbacks.do_damage(battle, target_id, damage, message, callback=callback)
       else:
-        menu = ["It didn't affect %s!" % (battle.get_name(target_id, lower=True),)]
-        return Callbacks.chain({'menu': menu})
+        return self.execute_miss(battle, user_id, target_id)
     else:
-      return Callbacks.chain({'menu': ['But it missed!']})
+      message = "It didn't affect %s!" % (battle.get_name(target_id, lower=True),)
+      return self.execute_miss(battle, user_id, target_id, message=message)
 
   def execute_multihit(self, battle, user_id, target_id, cur_hit=0, num_hits=0):
     '''
@@ -73,18 +73,29 @@ class Move(object):
     if not num_hits:
       user = battle.get_pokemon(user_id)
       target = battle.get_pokemon(target_id)
-      if self.hits(battle, user, target):
-        if self.get_type_advantage(target):
-          hits_map = {0: 2, 1: 2, 2: 2, 3: 3, 4: 3, 5: 3, 6: 4, 7: 5}
-          num_hits = hits_map[randrange(8)]
+      if self.get_type_advantage(target):
+        if self.hits(battle, user, target):
+          if 'num_hits' in self.extra:
+            num_hits = self.extra['num_hits']
+          else:
+            hits_map = {0: 2, 1: 2, 2: 2, 3: 3, 4: 3, 5: 3, 6: 4, 7: 5}
+            num_hits = hits_map[randrange(8)]
         else:
-          menu = ["It didn't affect %s!" % (battle.get_name(target_id, lower=True),)]
-          return Callbacks.chain({'menu': menu})
+          return self.execute_miss(battle, user_id, target_id)
       else:
-        return Callbacks.chain({'menu': ['But it missed!']})
+        message = "It didn't affect %s!" % (battle.get_name(target_id, lower=True),)
+        return self.execute_miss(battle, user_id, target_id, message=message)
     if cur_hit < num_hits:
       return self.execute_default(battle, user_id, target_id, cur_hit + 1, num_hits)
     return Callbacks.chain({'menu': ['Hit %s times!' % (num_hits,)]})
+
+  def execute_miss(self, battle, user_id, target_id, message=None):
+    message = message or 'But it missed!'
+    if 'miss_penalty' in self.extra:
+      user = battle.get_pokemon(user_id)
+      damage = -(-user.cur_hp/8)
+      return Callbacks.do_damage(battle, user_id, damage, message, special=' instead')
+    return Callbacks.chain({'menu': [message or 'But it missed!']})
 
   '''
   Auxilary methods that perform damage computation, etc. begin here.

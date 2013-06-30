@@ -15,18 +15,18 @@
 #12,Guillotine,30,1,5,NORMAL
 #13,Razor Wind,100,80,10,NORMAL
 #14,Swords Dance,101,0,30,NORMAL
-#15,Cut,95,50,30,NORMAL
-#16,Gust,100,40,35,FLYING
-#17,Wing Attack,100,60,35,FLYING
+15,Cut,95,50,30,NORMAL
+16,Gust,100,40,35,FLYING
+17,Wing Attack,100,60,35,FLYING
 #18,Whirlwind,100,0,20,NORMAL
 #19,Fly,95,90,15,FLYING
 #20,Bind,85,15,20,NORMAL
-#21,Slam,75,80,20,NORMAL
-#22,Vine Whip,100,35,15,GRASS
-#23,Stomp,100,65,20,NORMAL
-#24,Double Kick,100,30,30,FIGHTING
-#25,Mega Kick,75,120,5,NORMAL
-#26,Jump Kick,95,100,10,FIGHTING
+21,Slam,75,80,20,NORMAL
+22,Vine Whip,100,35,15,GRASS
+23,Stomp,100,65,20,NORMAL
+24,Double Kick,100,30,30,FIGHTING,{"move_type": "multihit", "num_hits": 2}
+25,Mega Kick,75,120,5,NORMAL
+26,Jump Kick,95,100,10,FIGHTING,{"miss_penalty": true}
 #27,Rolling Kick,85,60,15,FIGHTING
 #28,Sand-Attack,100,0,15,GROUND
 #29,Headbutt,100,70,15,NORMAL
