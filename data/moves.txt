@@ -49,27 +49,27 @@
 #46,Roar,100,0,20,NORMAL
 47,Sing,55,0,15,NORMAL,{"move_type": "status", "status": "sleep"}
 48,Supersonic,55,0,20,NORMAL,{"move_type": "status", "status": "confuse"}
-49,SonicBoom,90,1,20,NORMAL,{"damage": 20}
+49,SonicBoom,90,1,20,NORMAL,{"damage": 20, "ignore_immunity": true}
 #50,Disable,100,0,20,NORMAL
 51,Acid,100,40,30,POISON,{"stat_rate": 0.10, "stat": "defense", "stages": -1}
-#52,Ember,100,40,25,FIRE
-#53,Flamethrower,100,95,15,FIRE
+52,Ember,100,40,25,FIRE,{"burn_rate": 0.10}
+53,Flamethrower,100,95,15,FIRE,{"burn_rate": 0.10}
 #54,Mist,101,0,30,ICE
-#55,Water Gun,100,40,25,WATER
-#56,Hydro Pump,80,120,5,WATER
+55,Water Gun,100,40,25,WATER
+56,Hydro Pump,80,120,5,WATER
 #57,Surf,100,95,15,WATER
-#58,Ice Beam,100,95,10,ICE
-#59,Blizzard,70,120,5,ICE
-#60,Psybeam,100,65,20,PSYCHIC
-#61,BubbleBeam,100,65,20,WATER
-#62,Aurora Beam,100,65,20,ICE
+58,Ice Beam,100,95,10,ICE,{"freeze_rate": 0.10}
+59,Blizzard,70,120,5,ICE,{"freeze_rate": 0.10}
+60,Psybeam,100,65,20,PSYCHIC,{"confuse_rate": 0.10}
+61,BubbleBeam,100,65,20,WATER,{"stat_rate": 0.10, "stat": "speed", "stages": -1}
+62,Aurora Beam,100,65,20,ICE,{"stat_rate": 0.10, "stat": "attack", "stages": -1}
 #63,Hyper Beam,90,150,5,NORMAL
-#64,Peck,100,35,35,FLYING
-#65,Drill Peck,100,80,20,FLYING
+64,Peck,100,35,35,FLYING
+65,Drill Peck,100,80,20,FLYING
 #66,Submission,80,80,25,FIGHTING
-#67,Low Kick,100,1,20,FIGHTING
+67,Low Kick,100,50,20,FIGHTING,{"flinch_rate": 0.30}
 #68,Counter,100,1,20,FIGHTING
-#69,Seismic Toss,100,1,20,FIGHTING
+69,Seismic Toss,100,1,20,FIGHTING,{"damage": "level"}
 #70,Strength,100,80,15,NORMAL
 #71,Absorb,100,20,25,GRASS
 #72,Mega Drain,100,40,15,GRASS

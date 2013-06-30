@@ -170,6 +170,7 @@ for line in raw_move_data.split('\r\n')[:-1]:
   for (key, value) in move['extra'].iteritems():
     if key not in (
       'damage',
+      'ignore_immunity',
       'move_type',
       'miss_penalty',
       'num_hits',
@@ -184,4 +185,7 @@ for line in raw_move_data.split('\r\n')[:-1]:
         assert(status in Status.OPTIONS), 'Unexpected status: %s' % (status,)
     elif key == 'stat':
       assert(value in Stat.OPTIONS), 'Unexpected stat: %s' % (value,)
+    if key == 'stat_rate' or (key == 'move_type' and value == 'buff'):
+      assert('stat' in move['extra'] and 'stages' in move['extra']), \
+        'Unexpected extras dict: %s' % (move['extra'],)
   move_data[int(row[0])] = move

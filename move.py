@@ -105,7 +105,7 @@ class Move(object):
     assert(stat in Stat.OPTIONS and stat != Stat.HP and abs(stages) in (1, 2)), \
       'Unexpected buff: (%s, %s)' % (stat, stages)
     user = battle.get_pokemon(user_id)
-    if self.extra.get('target') == self:
+    if self.extra.get('target') == 'self':
       target_id = user_id
       target = user
     else:
@@ -135,7 +135,8 @@ class Move(object):
       - a message that describes modifies applied to that damage.
     '''
     if 'damage' in self.extra:
-      return (self.extra['damage'], None)
+      damage = self.extra['damage']
+      return (damage if damage != 'level' else user.lvl(), None)
     crit = self.crit(battle, user, target)
     lvl_multiplier = 4 if crit else 2
     level = float(lvl_multiplier*user.lvl() + 10)/250
@@ -156,7 +157,7 @@ class Move(object):
     return uniform(0, 1) < crit_rate
 
   def get_type_advantage(self, target):
-    if 'damage' in self.extra:
+    if self.extra.get('ignore_immunity'):
       return 1
     factors = (Type.TYPE_EFFECTIVENESS[self.type][type] for type in target.types)
     return reduce(operator.mul, factors, 1)
