@@ -183,3 +183,16 @@ class Move(object):
   @staticmethod
   def random_moves(num_moves):
     return [Move(num) for num in sample(Move.moves, num_moves)]
+
+
+class ConfusedMove(Move):
+  def __init__(self):
+    self.power = 40
+    self.type = None
+
+  def crit(self, battle, user, target):
+    return False
+
+  def get_type_advantage(self, target):
+    return 1
+ConfusedMove = ConfusedMove()

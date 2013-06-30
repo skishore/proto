@@ -30,6 +30,7 @@ class Status(object):
   PARALYZE = 'paralyze'
   POISON = 'poison'
   SLEEP = 'sleep'
+  CONFUSE = 'confuse'
   FLINCH = 'flinch'
 
   OPTIONS = (
@@ -38,10 +39,12 @@ class Status(object):
     PARALYZE,
     POISON,
     SLEEP,
+    CONFUSE,
     FLINCH,
   )
 
   SOFT_STATUSES = (
+    CONFUSE,
     FLINCH,
   )
 
@@ -59,6 +62,7 @@ class Status(object):
     PARALYZE: 'was paralyzed',
     POISON: 'was poisoned',
     SLEEP: 'fell asleep',
+    CONFUSE: 'became confused',
     FLINCH: 'flinched',
   }
 

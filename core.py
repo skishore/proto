@@ -58,14 +58,8 @@ class Core(object):
     '''
     assert(choice['type'] == 'move')
     pokemon = battle.get_pokemon(index)
-    (menu, can_move) = StatusEffects.transition(battle, index, pokemon)
-    result = {'menu': menu}
-    if can_move:
-      move = choice['move'].execute(battle, index, choice.get('target_id'))
-      if not menu:
-        return move
-      result['callback'] = lambda battle, choices: move
-    return result
+    move = choice['move'].execute(battle, index, choice.get('target_id'))
+    return StatusEffects.transition(battle, index, pokemon, default=move)
 
   @staticmethod
   def post_move_hook(sess_id):
@@ -166,11 +160,15 @@ class StatusEffects(object):
     '''
     pokemon = battle.get_pokemon(target_id)
     if status in Status.SOFT_STATUSES:
-      assert(status == Status.FLINCH), 'Soft status %s is not implemented' % (status,)
-      if target_id in choices and pokemon.status not in (Status.SLEEP, Status.FREEZE):
-        del choices[target_id]
-        return True
-      return False
+      if status == Status.CONFUSE:
+        if Status.CONFUSE not in pokemon.soft_status:
+          pokemon.soft_status[Status.CONFUSE] = True
+          pokemon.soft_status['confuse_turns'] = randint(1, 4)
+          return True
+      if status == Status.FLINCH:
+        if target_id in choices and pokemon.status not in (Status.SLEEP, Status.FREEZE):
+          del choices[target_id]
+          return True
     elif not pokemon.status:
       assert(status in Status.OPTIONS), 'Unexpected status: %s' % (status,)
       if not StatusEffects.check_immunity(pokemon, status, source.type):
@@ -192,9 +190,15 @@ class StatusEffects(object):
       )
 
   @staticmethod
-  def clear_status(pokemon):
-    pokemon.status = None
-    pokemon.soft_status.pop('sleep_turns', None)
+  def clear_status(pokemon, status=None):
+    if not status:
+      pokemon.status = None
+      pokemon.soft_status.pop('sleep_turns', None)
+    elif status == Status.CONFUSE:
+      pokemon.soft_status.pop(Status.CONFUSE, None)
+      pokemon.soft_status.pop('confuse_turns', None)
+    else:
+      assert(False), 'Unexpected status: %s' % (status,)
 
   @staticmethod
   def apply_update(battle, choices, index, pokemon):
@@ -216,24 +220,42 @@ class StatusEffects(object):
     return Callbacks.do_damage(battle, index, damage, '', special=special)
 
   @staticmethod
-  def transition(battle, index, pokemon):
+  def transition(battle, index, pokemon, default):
     '''
-    Transitions the status of a Pokemon with a status ailment. Returns a (menu, move)
-    pair - the menu is a message to show, while move is True if the Pokemon can move.
+    Transitions the status of a Pokemon with a status ailment.
+    Returns a dictionary with the same signature as any other executor.
+
+    If this Pokemon is not afflicted with any status ailment, returns the
+    given default value. If the ailment does not prevent the Pokemon from
+    moving, it will be included as a callback.
     '''
+    callback = lambda battle, choices: default
     name = battle.get_name(index)
     if pokemon.status == Status.SLEEP:
       pokemon.soft_status['sleep_turns'] -= 1
       if not pokemon.soft_status['sleep_turns']:
         StatusEffects.clear_status(pokemon)
-        return (['%s woke up!' % (name,)], False)
-      return (['%s was fast asleep!' % (name,)], False)
-    elif pokemon.status == Status.FREEZE:
+        return {'menu': ['%s woke up!' % (name,)]}
+      return {'menu': ['%s was fast asleep!' % (name,)]}
+    if pokemon.status == Status.FREEZE:
       if uniform(0, 1) < 0.20:
         StatusEffects.clear_status(pokemon)
-        return (['%s is frozen no more!' % (name,)], False)
-      return (['%s is still frozen!' % (name,)], False)
-    elif pokemon.status == Status.PARALYZE:
+        return {'menu': ['%s is frozen no more!' % (name,)]}
+      return {'menu': ['%s is still frozen!' % (name,)]}
+    if pokemon.status == Status.PARALYZE:
       if uniform(0, 1) < 0.25:
-        return (['%s is fully paralyzed!' % (name,)], False)
-    return (None, True)
+        return {'menu': ['%s is fully paralyzed!' % (name,)]}
+    if pokemon.soft_status.get(Status.CONFUSE):
+      pokemon.soft_status['confuse_turns'] -= 1
+      if not pokemon.soft_status['confuse_turns']:
+        StatusEffects.clear_status(pokemon, Status.CONFUSE)
+        return {'menu': ['%s is confused no more!' % (name,)], 'callback': callback}
+      menu = ['%s is confused...' % (name,)]
+      if uniform(0, 1) < 0.50:
+        from move import ConfusedMove
+        (damage, _) = ConfusedMove.compute_damage(battle, pokemon, pokemon)
+        message = 'It hurt itself in its confusion!'
+        damage_callback = Callbacks.do_damage(battle, index, damage, message)
+        return {'menu': menu, 'callback': damage_callback}
+      return {'menu': menu, 'callback': callback}
+    return default
