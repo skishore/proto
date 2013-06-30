@@ -12,6 +12,7 @@ from battle_animations import (
 from data import (
   Stat,
   Status,
+  Type,
 )
 
 
@@ -128,9 +129,9 @@ class Callbacks(object):
     return lambda battle, choices: display
 
   @staticmethod
-  def set_status(battle, target_id, status, callback=None, noisy_failure=False):
+  def set_status(battle, target_id, status, source, callback=None, noisy_failure=False):
     def update(battle, choices):
-      if StatusEffects.set_status(battle, target_id, status, choices):
+      if StatusEffects.set_status(battle, target_id, status, choices, source=source):
         menu = ['%s %s!' % (battle.get_name(target_id), Status.VERBS[status])]
         return {'menu': menu, 'callback': callback}
       elif noisy_failure:
@@ -159,7 +160,7 @@ class Callbacks(object):
 
 class StatusEffects(object):
   @staticmethod
-  def set_status(battle, target_id, status, choices):
+  def set_status(battle, target_id, status, choices, source):
     '''
     Sets a Pokemon's status. Returns True if it is set.
     '''
@@ -172,10 +173,23 @@ class StatusEffects(object):
       return False
     elif not pokemon.status:
       assert(status in Status.OPTIONS), 'Unexpected status: %s' % (status,)
-      pokemon.status = status
-      if status == Status.SLEEP:
-        pokemon.soft_status['sleep_turns'] = randint(1, 7)
-      return True
+      if not StatusEffects.check_immunity(pokemon, status, source.type):
+        pokemon.status = status
+        if status == Status.SLEEP:
+          pokemon.soft_status['sleep_turns'] = randint(1, 7)
+        return True
+
+  @staticmethod
+  def check_immunity(pokemon, status, source_type):
+    if status == Status.BURN:
+      return Type.FIRE in pokemon.types
+    if status == Status.FREEZE:
+      return Type.ICE in pokemon.types and source_type == Type.ICE
+    if status == Status.POISON:
+      return (
+        (Type.POISON in pokemon.types or Type.STEEL in pokemon.types) and
+        source_type == Type.POISON
+      )
 
   @staticmethod
   def clear_status(pokemon):

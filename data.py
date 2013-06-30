@@ -26,17 +26,17 @@ class Stat(object):
 
 class Status(object):
   BURN = 'burn'
-  POISON = 'poison'
-  PARALYZE = 'paralyze'
   FREEZE = 'freeze'
+  PARALYZE = 'paralyze'
+  POISON = 'poison'
   SLEEP = 'sleep'
   FLINCH = 'flinch'
 
   OPTIONS = (
     BURN,
-    POISON,
-    PARALYZE,
     FREEZE,
+    PARALYZE,
+    POISON,
     SLEEP,
     FLINCH,
   )
@@ -47,20 +47,27 @@ class Status(object):
 
   MARKS = {
     BURN: 'B',
-    POISON: 'P',
-    PARALYZE: 'R',
     FREEZE: 'F',
+    PARALYZE: 'R',
+    POISON: 'P',
     SLEEP: 'S',
   }
 
   VERBS = {
     BURN: 'was burned',
-    POISON: 'was poisoned',
-    PARALYZE: 'was paralyzed',
     FREEZE: 'was frozen solid',
+    PARALYZE: 'was paralyzed',
+    POISON: 'was poisoned',
     SLEEP: 'fell asleep',
     FLINCH: 'flinched',
   }
+
+class Type(object):
+  OPTIONS = ()
+  PHYSICAL_TYPES = ()
+  SPECIAL_TYPES = ()
+  TYPE_EFFECTIVENESS = {}
+
 
 #------ Parse the type data from types.txt. -------#
 
@@ -71,20 +78,18 @@ with open('data/types.txt', 'r') as types_txt:
 lines = raw_type_data.split('\n')
 assert(len(lines) == 2*num_types + 4)
 
-types = ()
-physical_types = ()
-special_types = ()
 
 for line in lines[1:num_types + 1]:
   (type, ph_or_sp) = line.split()
   assert(type.isalpha() and type == type.upper())
-  types += (type,)
+  setattr(Type, type, type)
+  Type.OPTIONS += (type,)
   assert(ph_or_sp in ('ph', 'sp'))
   if ph_or_sp == 'ph':
-    physical_types += (type,)
+    Type.PHYSICAL_TYPES += (type,)
   else:
-    special_types += (type,)
-assert(len(types) == num_types)
+    Type.SPECIAL_TYPES += (type,)
+assert(len(Type.OPTIONS) == num_types)
 
 def parse_effectiveness(char):
   assert(char in (' ', '0', '2') or ord(char) == 189)
@@ -92,15 +97,14 @@ def parse_effectiveness(char):
     return 0.5
   return {' ': 1, '0': 0, '2': 2}[char]
 
-type_effectiveness = {}
-for (source, line) in zip(types, lines[num_types + 3:]):
+for (source, line) in zip(Type.OPTIONS, lines[num_types + 3:]):
   decoded = line.decode('utf8')
   assert(len(decoded) == 17)
-  type_effectiveness[source] = {
-    target: parse_effectiveness(char) for (target, char) in zip(types, decoded)
+  Type.TYPE_EFFECTIVENESS[source] = {
+    target: parse_effectiveness(char) for (target, char) in zip(Type.OPTIONS, decoded)
   }
-  assert(all(type in type_effectiveness[source] for type in types))
-assert(all(type in type_effectiveness for type in types))
+  assert(all(type in Type.TYPE_EFFECTIVENESS[source] for type in Type.OPTIONS))
+assert(all(type in Type.TYPE_EFFECTIVENESS for type in Type.OPTIONS))
 
 
 #------ Parse the Pokemon data from pokemon.txt. -------#
@@ -123,7 +127,7 @@ for (i, line) in enumerate(raw_pokedex_data.split('\r\n')[1:252]):
     'speed': int(row[8]),
     'types': tuple(t for t in row[9:11] if t != 'null'),
   }
-  assert(all(t in types for t in pokemon['types'])), \
+  assert(all(t in Type.OPTIONS for t in pokemon['types'])), \
     'Unexpected types: %s' % (pokemon['types'],)
   pokedex_data[i + 1] = pokemon
 
@@ -150,7 +154,7 @@ for line in raw_move_data.split('\r\n')[:-1]:
   if line.startswith('#'):
     continue
   row = line.split(',')
-  assert(row[5] in types), 'Unexpected type: %s' % (row[5],)
+  assert(row[5] in Type.OPTIONS), 'Unexpected type: %s' % (row[5],)
   move = {
     'name': row[1].upper(),
     'accuracy': int(row[2]),

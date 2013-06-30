@@ -8,10 +8,9 @@ from random import (
 from core import Callbacks
 from data import (
   move_data,
-  physical_types,
-  type_effectiveness,
   Stat,
   Status,
+  Type,
 )
 
 
@@ -122,7 +121,7 @@ class Move(object):
     user = battle.get_pokemon(user_id)
     target = battle.get_pokemon(target_id)
     if self.hits(battle, user, target):
-      return Callbacks.set_status(battle, target_id, status, noisy_failure=True)
+      return Callbacks.set_status(battle, target_id, status, self, noisy_failure=True)
     return self.execute_miss(battle, user_id, target_id)
 
   '''
@@ -139,7 +138,7 @@ class Move(object):
     lvl_multiplier = 4 if crit else 2
     level = float(lvl_multiplier*user.lvl() + 10)/250
     stat_ratio = (
-      float(user.stat(Stat.ATTACK))/target.stat(Stat.DEFENSE) if self.type in physical_types else
+      float(user.stat(Stat.ATTACK))/target.stat(Stat.DEFENSE) if self.type in Type.PHYSICAL_TYPES else
       float(user.stat(Stat.SPECIAL_ATTACK))/target.stat(Stat.SPECIAL_DEFENSE)
     )
     stab = 1.5 if self.type in user.types else 1
@@ -155,7 +154,7 @@ class Move(object):
     return uniform(0, 1) < crit_rate
 
   def get_type_advantage(self, target):
-    factors = (type_effectiveness[self.type][type] for type in target.types)
+    factors = (Type.TYPE_EFFECTIVENESS[self.type][type] for type in target.types)
     return reduce(operator.mul, factors, 1)
 
   def get_type_message(self, battle, user, target):
@@ -173,7 +172,7 @@ class Move(object):
     for status in Status.OPTIONS:
       rate = self.extra.get(status + '_rate')
       if rate and uniform(0, 1) < rate:
-        return Callbacks.set_status(battle, target_id, status, callback)
+        return Callbacks.set_status(battle, target_id, status, self, callback=callback)
     return callback
 
   @staticmethod
