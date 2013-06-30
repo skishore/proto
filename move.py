@@ -105,12 +105,17 @@ class Move(object):
 
   def execute_buff(self, battle, user_id, target_id):
     (stat, stages) = (self.extra['stat'], self.extra['stages'])
-    target_id = user_id if self.extra.get('target') == 'self' else target_id
-    target = battle.get_pokemon(target_id)
-    assert(self.extra.get('target') == 'self' or stages < 0), \
-      'Unexpeced buff on enemy: %s' % (self.name,)
-    assert(stat in (target.stats + (Stat.ACCURACY, Stat.EVASION)) and abs(stages) in (1, 2)), \
+    assert(stat in Stat.OPTIONS and stat != Stat.HP and abs(stages) in (1, 2)), \
       'Unexpected buff: (%s, %s)' % (stat, stages)
+    user = battle.get_pokemon(user_id)
+    if self.extra.get('target') == self:
+      target_id = user_id
+      target = user
+    else:
+      assert(stages < 0), 'Unexpected buff on enemy: %s' % (self.name,)
+      target = battle.get_pokemon(target_id)
+      if not self.hits(battle, user, target):
+        return self.execute_miss(battle, user_id, target_id)
     return Callbacks.do_buff(battle, target_id, stat, stages)
 
   '''
